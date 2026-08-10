@@ -6,6 +6,7 @@ import { Task } from '@/types';
 import { format } from 'date-fns';
 import { Calendar, Tag, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface TaskCardProps {
   task: Task;
@@ -20,6 +21,7 @@ const priorityColors = {
 };
 
 export default function TaskCard({ task }: TaskCardProps) {
+  const router = useRouter();
   const {
     attributes,
     listeners,
@@ -34,14 +36,19 @@ export default function TaskCard({ task }: TaskCardProps) {
     transition,
   };
 
+  const handleClick = () => {
+    router.push(`/tasks/${task._id}`);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        'bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 cursor-move hover:shadow-md transition-shadow',
+        'bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-md transition-shadow',
         isDragging && 'opacity-50'
       )}
+      onClick={handleClick}
       {...attributes}
       {...listeners}
     >
@@ -49,7 +56,10 @@ export default function TaskCard({ task }: TaskCardProps) {
         <h4 className="font-medium text-gray-900 dark:text-white text-sm flex-1">
           {task.title}
         </h4>
-        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <button
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          onClick={(e) => e.stopPropagation()}
+        >
           <MoreHorizontal className="h-4 w-4" />
         </button>
       </div>
@@ -95,13 +105,13 @@ export default function TaskCard({ task }: TaskCardProps) {
 
         {task.members && task.members.length > 0 && (
           <div className="flex -space-x-2">
-            {task.members.slice(0, 3).map((member) => (
+            {task.members.slice(0, 3).map((member, index) => (
               <div
-                key={member._id}
+                key={member._id || `member-${index}`}
                 className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs border-2 border-white dark:border-gray-900"
                 title={member.name}
               >
-                {member.name.charAt(0).toUpperCase()}
+                {member.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
             ))}
             {task.members.length > 3 && (

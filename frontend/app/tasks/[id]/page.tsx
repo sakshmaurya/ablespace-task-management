@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -47,7 +49,6 @@ export default function TaskDetailPage() {
 
   useEffect(() => {
     loadTaskData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
   const handleStatusChange = async (status: TaskStatus) => {
@@ -125,7 +126,10 @@ export default function TaskDetailPage() {
     return (
       <AppLayout title="Task Details">
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading task...</div>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="text-lg text-gray-600 dark:text-gray-400">Loading task...</div>
+          </div>
         </div>
       </AppLayout>
     );
@@ -134,8 +138,20 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <AppLayout title="Task Details">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Task not found</div>
+        <div className="flex flex-col items-center justify-center h-64 text-center">
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-6 mb-4">
+            <ArrowLeft className="h-12 w-12 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            Task not found
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
+            The task you&apos;re looking for doesn&apos;t exist or has been deleted
+          </p>
+          <Button variant="secondary" onClick={() => router.push('/tasks')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Tasks
+          </Button>
         </div>
       </AppLayout>
     );
@@ -157,7 +173,7 @@ export default function TaskDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             {/* Description */}
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -174,13 +190,14 @@ export default function TaskDetailPage() {
                 <CheckSquare className="h-5 w-5 mr-2" />
                 Subtasks
               </h2>
-              <form onSubmit={handleAddSubtask} className="flex space-x-2 mb-4">
+              <form onSubmit={handleAddSubtask} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
                 <Input
                   placeholder="Add a subtask..."
                   value={newSubtask}
                   onChange={(e) => setNewSubtask(e.target.value)}
+                  className="flex-1"
                 />
-                <Button type="submit" size="sm">
+                <Button type="submit" size="sm" className="w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
                 </Button>
               </form>
@@ -216,9 +233,9 @@ export default function TaskDetailPage() {
                     </button>
                   </div>
                 ))}
-                {subtasks.length === 0 && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No subtasks yet</p>
-                )}
+              {subtasks.length === 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No subtasks yet</p>
+              )}
               </div>
             </div>
 
@@ -234,10 +251,10 @@ export default function TaskDetailPage() {
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 dark:placeholder-gray-500"
                 />
                 <div className="flex justify-end mt-2">
-                  <Button type="submit" size="sm">
+                  <Button type="submit" size="sm" className="w-full sm:w-auto">
                     Post Comment
                   </Button>
                 </div>
@@ -247,12 +264,12 @@ export default function TaskDetailPage() {
                   <div key={comment._id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium flex-shrink-0">
-                        {comment.userId.name.charAt(0).toUpperCase()}
+                        {comment.userId?.name?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {comment.userId.name}
+                            {comment.userId?.name || 'Unknown User'}
                           </p>
                           <div className="flex items-center space-x-2">
                             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -281,7 +298,7 @@ export default function TaskDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 order-1 lg:order-2">
             {/* Properties */}
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -297,10 +314,10 @@ export default function TaskDetailPage() {
                     onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value={TaskStatus.TODO}>To Do</option>
-                    <option value={TaskStatus.DOING}>Doing</option>
-                    <option value={TaskStatus.COMPLETED}>Completed</option>
-                    <option value={TaskStatus.ON_HOLD}>On Hold</option>
+                    <option value={TaskStatus.TODO} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">To Do</option>
+                    <option value={TaskStatus.DOING} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Doing</option>
+                    <option value={TaskStatus.COMPLETED} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Completed</option>
+                    <option value={TaskStatus.ON_HOLD} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">On Hold</option>
                   </select>
                 </div>
 
@@ -313,11 +330,11 @@ export default function TaskDetailPage() {
                     onChange={(e) => handlePriorityChange(e.target.value as Priority)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value={Priority.NONE}>None</option>
-                    <option value={Priority.LOW}>Low</option>
-                    <option value={Priority.MEDIUM}>Medium</option>
-                    <option value={Priority.HIGH}>High</option>
-                    <option value={Priority.URGENT}>Urgent</option>
+                    <option value={Priority.NONE} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">None</option>
+                    <option value={Priority.LOW} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Low</option>
+                    <option value={Priority.MEDIUM} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Medium</option>
+                    <option value={Priority.HIGH} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">High</option>
+                    <option value={Priority.URGENT} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Urgent</option>
                   </select>
                 </div>
 
@@ -337,10 +354,10 @@ export default function TaskDetailPage() {
                   {task.reporter && (
                     <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs">
-                        {task.reporter.name.charAt(0).toUpperCase()}
+                        {task.reporter.name?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <span className="text-sm text-gray-900 dark:text-white">
-                        {task.reporter.name}
+                        {task.reporter.name || 'Unknown'}
                       </span>
                     </div>
                   )}
@@ -357,10 +374,10 @@ export default function TaskDetailPage() {
                         className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1"
                       >
                         <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs">
-                          {member.name.charAt(0).toUpperCase()}
+                          {member.name?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                         <span className="text-xs text-gray-900 dark:text-white">
-                          {member.name}
+                          {member.name || 'Unknown'}
                         </span>
                       </div>
                     ))}
@@ -396,7 +413,7 @@ export default function TaskDetailPage() {
                   <div key={activity._id} className="text-sm">
                     <p className="text-gray-700 dark:text-gray-300">
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {activity.userId.name}
+                        {activity.userId?.name || 'Unknown User'}
                       </span>{' '}
                       {activity.action.replace('_', ' ')}
                       {activity.oldValue && (

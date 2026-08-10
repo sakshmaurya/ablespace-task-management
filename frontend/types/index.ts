@@ -47,8 +47,10 @@ export interface Project {
   description?: string;
   priority: Priority;
   lead?: User;
+  leadId?: string;
   dueDate?: string;
   createdBy: User;
+  createdById?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,12 +62,16 @@ export interface Task {
   status: TaskStatus;
   priority: Priority;
   projectId?: Project;
+  projectIdString?: string;
   members: User[];
+  memberIds?: string[];
   labels: string[];
   dueDate?: string;
   reporter?: User;
+  reporterId?: string;
   resources: string[];
   createdBy: User;
+  createdById?: string;
   createdAt: string;
   updatedAt: string;
 }

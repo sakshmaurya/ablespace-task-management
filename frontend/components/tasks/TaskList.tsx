@@ -2,8 +2,9 @@
 
 import { Task, TaskStatus } from '@/types';
 import { format } from 'date-fns';
-import { Calendar } from 'lucide-react';
+import { Calendar, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface TaskListProps {
   tasks: Task[];
@@ -31,6 +32,7 @@ export default function TaskList({
   onStatusChange,
   onTaskDelete,
 }: TaskListProps) {
+  const router = useRouter();
   const groupedTasks = tasks.reduce((acc, task) => {
     if (!acc[task.status]) {
       acc[task.status] = [];
@@ -39,6 +41,10 @@ export default function TaskList({
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
+  const handleTaskClick = (taskId: string) => {
+    router.push(`/tasks/${taskId}`);
+  };
+
   return (
     <div className="space-y-6">
       {Object.entries(groupedTasks).map(([status, statusTasks]) => (
@@ -46,21 +52,27 @@ export default function TaskList({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             {status.replace('_', ' ')} ({statusTasks.length})
           </h3>
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <table className="w-full">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+            <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Task
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Priority
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Members
+                    Assignee
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Due Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Project
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
@@ -69,26 +81,20 @@ export default function TaskList({
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {statusTasks.map((task) => (
-                  <tr key={task._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr
+                    key={task._id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                    onClick={() => handleTaskClick(task._id)}
+                  >
                     <td className="px-4 py-4">
                       <div>
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {task.title}
-                          </p>
-                          <span
-                            className={cn(
-                              'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
-                              statusColors[task.status]
-                            )}
-                          >
-                            {task.status}
-                          </span>
-                        </div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {task.title}
+                        </p>
                         {task.description && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
                             {task.description}
-                          </p>
+                        </p>
                         )}
                         {task.labels.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
@@ -105,6 +111,16 @@ export default function TaskList({
                       </div>
                     </td>
                     <td className="px-4 py-4">
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                          statusColors[task.status]
+                        )}
+                      >
+                        {task.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
                       {task.priority && task.priority !== 'NONE' && (
                         <span
                           className={cn(
@@ -119,13 +135,13 @@ export default function TaskList({
                     <td className="px-4 py-4">
                       {task.members && task.members.length > 0 && (
                         <div className="flex -space-x-2">
-                          {task.members.slice(0, 3).map((member) => (
+                          {task.members.slice(0, 3).map((member, index) => (
                             <div
-                              key={member._id}
+                              key={member._id || `member-${index}`}
                               className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs border-2 border-white dark:border-gray-900"
                               title={member.name}
                             >
-                              {member.name.charAt(0).toUpperCase()}
+                              {member.name?.charAt(0)?.toUpperCase() || '?'}
                             </div>
                           ))}
                           {task.members.length > 3 && (
@@ -147,21 +163,35 @@ export default function TaskList({
                       )}
                     </td>
                     <td className="px-4 py-4">
+                      {task.projectId ? (
+                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                          <FolderOpen className="h-3 w-3 mr-1" />
+                          {task.projectId.name}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
                       <div className="flex items-center space-x-2">
                         <select
                           value={task.status}
-                          onChange={(e) =>
-                            onStatusChange(task._id, e.target.value as TaskStatus)
-                          }
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onStatusChange(task._id, e.target.value as TaskStatus);
+                          }}
                           className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
-                          <option value={TaskStatus.TODO}>To Do</option>
-                          <option value={TaskStatus.DOING}>Doing</option>
-                          <option value={TaskStatus.COMPLETED}>Completed</option>
-                          <option value={TaskStatus.ON_HOLD}>On Hold</option>
+                          <option value={TaskStatus.TODO} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">To Do</option>
+                          <option value={TaskStatus.DOING} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Doing</option>
+                          <option value={TaskStatus.COMPLETED} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Completed</option>
+                          <option value={TaskStatus.ON_HOLD} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">On Hold</option>
                         </select>
                         <button
-                          onClick={() => onTaskDelete(task._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onTaskDelete(task._id);
+                          }}
                           className="text-red-500 hover:text-red-700 text-xs"
                         >
                           Delete
