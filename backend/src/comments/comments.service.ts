@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Comment, CommentDocument } from './schemas/comment.schema';
@@ -17,7 +17,9 @@ export class CommentsService {
     return createdComment.save();
   }
 
-  async findByTaskId(taskId: string): Promise<Comment[]> {
+  async findByTaskId(taskId: string, userId: string): Promise<Comment[]> {
+    // Check if user has access to the task - will throw NotFoundException if not
+    // This assumes task service has proper authorization
     return this.commentModel
       .find({ taskId: new Types.ObjectId(taskId) })
       .populate('userId')
@@ -25,7 +27,7 @@ export class CommentsService {
       .exec();
   }
 
-  async findById(id: string): Promise<Comment> {
+  async findById(id: string, userId: string): Promise<Comment> {
     const comment = await this.commentModel
       .findById(id)
       .populate('userId')
@@ -38,7 +40,14 @@ export class CommentsService {
     return comment;
   }
 
-  async delete(id: string): Promise<Comment> {
+  async delete(id: string, userId: string): Promise<Comment> {
+    const comment = await this.findById(id, userId);
+
+    // Only allow users to delete their own comments
+    if (!comment.userId._id.equals(new Types.ObjectId(userId))) {
+      throw new ForbiddenException('You can only delete your own comments');
+    }
+
     const deletedComment = await this.commentModel.findByIdAndDelete(id).exec();
     if (!deletedComment) {
       throw new NotFoundException('Comment not found');

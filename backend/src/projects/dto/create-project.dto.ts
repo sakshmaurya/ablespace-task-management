@@ -18,6 +18,14 @@ export class CreateProjectDto {
   lead?: string;
 
   @IsOptional()
+  @IsString()
+  leadId?: string;
+
+  @IsOptional()
   @IsDateString()
   dueDate?: string;
+
+  @IsOptional()
+  @IsString()
+  createdById?: string;
 }

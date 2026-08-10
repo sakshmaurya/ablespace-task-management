@@ -13,8 +13,8 @@ export class CommentsController {
 
   @Get('tasks/:taskId')
   @ApiOperation({ summary: 'Get all comments for a task' })
-  async findByTaskId(@Param('taskId') taskId: string) {
-    return this.commentsService.findByTaskId(taskId);
+  async findByTaskId(@Param('taskId') taskId: string, @Request() req) {
+    return this.commentsService.findByTaskId(taskId, req.user._id);
   }
 
   @Post('tasks/:taskId')
@@ -25,7 +25,7 @@ export class CommentsController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a comment' })
-  async delete(@Param('id') id: string) {
-    return this.commentsService.delete(id);
+  async delete(@Param('id') id: string, @Request() req) {
+    return this.commentsService.delete(id, req.user._id);
   }
 }

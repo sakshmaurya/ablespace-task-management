@@ -20,24 +20,53 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
-    const createdTask = new this.taskModel({
+    const taskData: any = {
       ...createTaskDto,
       createdBy: new Types.ObjectId(userId),
-    });
+    };
+
+    // Handle the new ID-based fields
+    if (createTaskDto.projectIdString) {
+      taskData.projectId = new Types.ObjectId(createTaskDto.projectIdString);
+    }
+    if (createTaskDto.memberIds) {
+      taskData.members = createTaskDto.memberIds.map(id => new Types.ObjectId(id));
+    }
+    if (createTaskDto.reporterId) {
+      taskData.reporter = new Types.ObjectId(createTaskDto.reporterId);
+    }
+
+    const createdTask = new this.taskModel(taskData);
     const task = await createdTask.save();
 
     await this.createActivity(task._id.toString(), userId, 'created', null, task.title);
     return task;
   }
 
-  async findAll(query: any = {}): Promise<Task[]> {
+  async findAll(query: any = {}, userId: string): Promise<Task[]> {
     const filter: any = {};
 
+    // CRITICAL: Only return tasks where user is creator, member, or reporter
+    const userAccessFilter = {
+      $or: [
+        { createdBy: new Types.ObjectId(userId) },
+        { members: { $in: [new Types.ObjectId(userId)] } },
+        { reporter: new Types.ObjectId(userId) },
+      ],
+    };
+
     if (query.search) {
-      filter.$or = [
-        { title: { $regex: query.search, $options: 'i' } },
-        { description: { $regex: query.search, $options: 'i' } },
+      filter.$and = [
+        userAccessFilter,
+        {
+          $or: [
+            { title: { $regex: query.search, $options: 'i' } },
+            { description: { $regex: query.search, $options: 'i' } },
+          ],
+        },
       ];
+    } else {
+      Object.assign(filter, userAccessFilter);
     }
 
     if (query.status) {
@@ -78,7 +107,7 @@ export class TasksService {
       .exec();
   }
 
-  async findById(id: string): Promise<Task> {
+  async findById(id: string, userId: string): Promise<Task> {
     const task = await this.taskModel
       .findById(id)
       .populate('projectId')
@@ -90,11 +119,23 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
+
+    // CRITICAL: Check if user has access to this task
+    const userObjectId = new Types.ObjectId(userId);
+    const hasAccess =
+      task.createdBy && task.createdBy._id.equals(userObjectId) ||
+      task.members && task.members.some((member: any) => member._id.equals(userObjectId)) ||
+      task.reporter && task.reporter._id.equals(userObjectId);
+
+    if (!hasAccess) {
+      throw new NotFoundException('Task not found');
+    }
+
     return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string): Promise<Task> {
-    const oldTask = await this.findById(id);
+    const oldTask = await this.findById(id, userId);
 
     if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
       await this.createActivity(id, userId, 'status_changed', oldTask.status, updateTaskDto.status);
@@ -119,7 +160,7 @@ export class TasksService {
   }
 
   async updateStatus(id: string, updateTaskStatusDto: UpdateTaskStatusDto, userId: string): Promise<Task> {
-    const task = await this.findById(id);
+    const task = await this.findById(id, userId);
     await this.createActivity(id, userId, 'status_changed', task.status, updateTaskStatusDto.status);
 
     const updatedTask = await this.taskModel
@@ -137,7 +178,7 @@ export class TasksService {
   }
 
   async updatePriority(id: string, updateTaskPriorityDto: UpdateTaskPriorityDto, userId: string): Promise<Task> {
-    const task = await this.findById(id);
+    const task = await this.findById(id, userId);
     await this.createActivity(id, userId, 'priority_changed', task.priority, updateTaskPriorityDto.priority);
 
     const updatedTask = await this.taskModel
@@ -154,7 +195,8 @@ export class TasksService {
     return updatedTask;
   }
 
-  async delete(id: string): Promise<Task> {
+  async delete(id: string, userId: string): Promise<Task> {
+    const task = await this.findById(id, userId);
     const deletedTask = await this.taskModel.findByIdAndDelete(id).exec();
     if (!deletedTask) {
       throw new NotFoundException('Task not found');
@@ -174,7 +216,10 @@ export class TasksService {
     return createdSubtask.save();
   }
 
-  async findSubtasks(taskId: string): Promise<Subtask[]> {
+  async findSubtasks(taskId: string, userId: string): Promise<Subtask[]> {
+    // Check if user has access to parent task
+    await this.findById(taskId, userId);
+
     return this.subtaskModel
       .find({ taskId: new Types.ObjectId(taskId) })
       .populate('members')
@@ -201,7 +246,10 @@ export class TasksService {
     return deletedSubtask;
   }
 
-  async findActivity(taskId: string): Promise<Activity[]> {
+  async findActivity(taskId: string, userId: string): Promise<Activity[]> {
+    // Check if user has access to parent task
+    await this.findById(taskId, userId);
+
     return this.activityModel
       .find({ taskId: new Types.ObjectId(taskId) })
       .populate('userId')

@@ -14,7 +14,12 @@ async function seed() {
   const tasksService = app.get(TasksService);
   const commentsService = app.get(CommentsService);
 
-  console.log('Seeding database...');
+  // Check if seed data already exists
+  const existingUsers = await usersService.findAll();
+  if (existingUsers.length > 0) {
+    await app.close();
+    return;
+  }
 
   const user1 = await usersService.create({
     name: 'Alex Johnson',
@@ -49,7 +54,7 @@ async function seed() {
     accentColor: AccentColor.EMERALD,
   });
 
-  console.log('Users created');
+
 
   const project1 = await projectsService.create(
     {
@@ -84,7 +89,7 @@ async function seed() {
     user1._id.toString(),
   );
 
-  console.log('Projects created');
+
 
   const task1 = await tasksService.create(
     {
@@ -206,7 +211,7 @@ async function seed() {
     user3._id.toString(),
   );
 
-  console.log('Tasks created');
+
 
   await tasksService.createSubtask(task2._id.toString(), {
     title: 'Setup JWT authentication',
@@ -233,7 +238,7 @@ async function seed() {
     priority: Priority.HIGH,
   });
 
-  console.log('Subtasks created');
+
 
   await commentsService.create(task1._id.toString(), { message: 'Great work on the homepage design!' }, user3._id.toString());
   await commentsService.create(task1._id.toString(), { message: 'Thanks! Let me know if you need any changes.' }, user2._id.toString());
@@ -241,9 +246,9 @@ async function seed() {
   await commentsService.create(task5._id.toString(), { message: 'Should we use Elasticsearch or simple text search?' }, user2._id.toString());
   await commentsService.create(task5._id.toString(), { message: 'Let\'s start with simple search and optimize later.' }, user1._id.toString());
 
-  console.log('Comments created');
 
-  console.log('Seeding completed successfully!');
+
+
   await app.close();
 }
 

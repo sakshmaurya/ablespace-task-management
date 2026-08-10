@@ -16,14 +16,14 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Get all projects with filters' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'priority', required: false })
-  async findAll(@Query() query: any) {
-    return this.projectsService.findAll(query);
+  async findAll(@Query() query: any, @Request() req) {
+    return this.projectsService.findAll(query, req.user._id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get project by id' })
-  async findById(@Param('id') id: string) {
-    return this.projectsService.findById(id);
+  async findById(@Param('id') id: string, @Request() req) {
+    return this.projectsService.findById(id, req.user._id);
   }
 
   @Post()
@@ -34,13 +34,13 @@ export class ProjectsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a project' })
-  async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(id, updateProjectDto);
+  async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto, @Request() req) {
+    return this.projectsService.update(id, updateProjectDto, req.user._id);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a project' })
-  async delete(@Param('id') id: string) {
-    return this.projectsService.delete(id);
+  async delete(@Param('id') id: string, @Request() req) {
+    return this.projectsService.delete(id, req.user._id);
   }
 }

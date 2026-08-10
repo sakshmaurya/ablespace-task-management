@@ -22,9 +22,18 @@ export class CreateTaskDto {
   projectId?: string;
 
   @IsOptional()
+  @IsString()
+  projectIdString?: string;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   members?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  memberIds?: string[];
 
   @IsOptional()
   @IsArray()
@@ -38,6 +47,10 @@ export class CreateTaskDto {
   @IsOptional()
   @IsString()
   reporter?: string;
+
+  @IsOptional()
+  @IsString()
+  reporterId?: string;
 
   @IsOptional()
   @IsArray()

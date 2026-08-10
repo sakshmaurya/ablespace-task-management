@@ -26,14 +26,14 @@ export class TasksController {
   @ApiQuery({ name: 'labels', required: false })
   @ApiQuery({ name: 'dueDate', required: false })
   @ApiQuery({ name: 'reporter', required: false })
-  async findAll(@Query() query: any) {
-    return this.tasksService.findAll(query);
+  async findAll(@Query() query: any, @Request() req) {
+    return this.tasksService.findAll(query, req.user._id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get task by id' })
-  async findById(@Param('id') id: string) {
-    return this.tasksService.findById(id);
+  async findById(@Param('id') id: string, @Request() req) {
+    return this.tasksService.findById(id, req.user._id);
   }
 
   @Post()
@@ -50,8 +50,8 @@ export class TasksController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a task' })
-  async delete(@Param('id') id: string) {
-    return this.tasksService.delete(id);
+  async delete(@Param('id') id: string, @Request() req) {
+    return this.tasksService.delete(id, req.user._id);
   }
 
   @Patch(':id/status')
@@ -68,8 +68,8 @@ export class TasksController {
 
   @Get(':taskId/subtasks')
   @ApiOperation({ summary: 'Get all subtasks for a task' })
-  async findSubtasks(@Param('taskId') taskId: string) {
-    return this.tasksService.findSubtasks(taskId);
+  async findSubtasks(@Param('taskId') taskId: string, @Request() req) {
+    return this.tasksService.findSubtasks(taskId, req.user._id);
   }
 
   @Post(':taskId/subtasks')
@@ -92,7 +92,7 @@ export class TasksController {
 
   @Get(':taskId/activity')
   @ApiOperation({ summary: 'Get activity log for a task' })
-  async findActivity(@Param('taskId') taskId: string) {
-    return this.tasksService.findActivity(taskId);
+  async findActivity(@Param('taskId') taskId: string, @Request() req) {
+    return this.tasksService.findActivity(taskId, req.user._id);
   }
 }

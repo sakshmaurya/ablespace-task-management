@@ -12,20 +12,35 @@ export class ProjectsService {
   async create(createProjectDto: CreateProjectDto, userId: string): Promise<Project> {
     const createdProject = new this.projectModel({
       ...createProjectDto,
-      createdBy: new Types.ObjectId(userId),
-      lead: createProjectDto.lead ? new Types.ObjectId(createProjectDto.lead) : undefined,
+      createdBy: createProjectDto.createdById ? new Types.ObjectId(createProjectDto.createdById) : new Types.ObjectId(userId),
+      lead: createProjectDto.leadId ? new Types.ObjectId(createProjectDto.leadId) : undefined,
     });
     return createdProject.save();
   }
 
-  async findAll(query: any = {}): Promise<Project[]> {
+  async findAll(query: any = {}, userId: string): Promise<Project[]> {
     const filter: any = {};
 
+    // CRITICAL: Only return projects where user is creator or lead
+    const userAccessFilter = {
+      $or: [
+        { createdBy: new Types.ObjectId(userId) },
+        { lead: new Types.ObjectId(userId) },
+      ],
+    };
+
     if (query.search) {
-      filter.$or = [
-        { name: { $regex: query.search, $options: 'i' } },
-        { description: { $regex: query.search, $options: 'i' } },
+      filter.$and = [
+        userAccessFilter,
+        {
+          $or: [
+            { name: { $regex: query.search, $options: 'i' } },
+            { description: { $regex: query.search, $options: 'i' } },
+          ],
+        },
       ];
+    } else {
+      Object.assign(filter, userAccessFilter);
     }
 
     if (query.priority) {
@@ -40,7 +55,7 @@ export class ProjectsService {
       .exec();
   }
 
-  async findById(id: string): Promise<Project> {
+  async findById(id: string, userId: string): Promise<Project> {
     const project = await this.projectModel
       .findById(id)
       .populate('lead')
@@ -50,10 +65,24 @@ export class ProjectsService {
     if (!project) {
       throw new NotFoundException('Project not found');
     }
+
+    // CRITICAL: Check if user has access to this project
+    const userObjectId = new Types.ObjectId(userId);
+    const hasAccess =
+      project.createdBy && project.createdBy._id.equals(userObjectId) ||
+      project.lead && project.lead._id.equals(userObjectId);
+
+    if (!hasAccess) {
+      throw new NotFoundException('Project not found');
+    }
+
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string): Promise<Project> {
+    // Check authorization first
+    await this.findById(id, userId);
+
     if (updateProjectDto.lead) {
       updateProjectDto.lead = new Types.ObjectId(updateProjectDto.lead) as any;
     }
@@ -70,7 +99,10 @@ export class ProjectsService {
     return updatedProject;
   }
 
-  async delete(id: string): Promise<Project> {
+  async delete(id: string, userId: string): Promise<Project> {
+    // Check authorization first
+    await this.findById(id, userId);
+
     const deletedProject = await this.projectModel.findByIdAndDelete(id).exec();
     if (!deletedProject) {
       throw new NotFoundException('Project not found');
