@@ -9,4 +9,8 @@ export const userService = {
   async updateCurrentUser(data: Partial<User>): Promise<User> {
     return api.patch<User>('/users/me', data);
   },
+
+  async updateAvatar(avatar: string): Promise<User> {
+    return api.post<User>('/users/me/avatar', { avatar });
+  },
 };

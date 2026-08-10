@@ -1,16 +1,20 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { userService } from '@/services/userService';
-import { LogOut, Mail, User as UserIcon, Briefcase, AtSign } from 'lucide-react';
+import { LogOut, Mail, User as UserIcon, Briefcase, AtSign, Camera, X } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,18 +30,72 @@ export default function ProfilePage() {
         title: user.title || '',
         username: user.username,
       });
+      setAvatarPreview(user.avatar || null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File size must be less than 2MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      setAvatarPreview(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarSave = async () => {
+    if (!avatarPreview) return;
+
+    try {
+      setAvatarLoading(true);
+      const updatedUser = await userService.updateAvatar(avatarPreview);
+      setUser(updatedUser);
+      alert('Avatar updated successfully');
+    } catch {
+      alert('Failed to update avatar');
+      setAvatarPreview(user?.avatar || null);
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    try {
+      setAvatarLoading(true);
+      const updatedUser = await userService.updateAvatar('');
+      setUser(updatedUser);
+      setAvatarPreview(null);
+      alert('Avatar removed successfully');
+    } catch {
+      alert('Failed to remove avatar');
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await userService.updateCurrentUser(formData);
+      const updatedUser = await userService.updateCurrentUser(formData);
+      setUser(updatedUser);
       alert('Profile updated successfully');
-    } catch (error) {
-      console.error('Failed to update profile:', error);
+    } catch {
       alert('Failed to update profile');
     } finally {
       setLoading(false);
@@ -56,21 +114,70 @@ export default function ProfilePage() {
 
   return (
     <AppLayout title="Profile">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 sm:px-0">
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
           {/* Profile Header */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold">
-                {user.name.charAt(0).toUpperCase()}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative group">
+                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.name?.charAt(0)?.toUpperCase() || 'G'
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Camera className="h-6 w-6 text-white" />
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </div>
               </div>
-              <div>
+              <div className="text-center sm:text-left flex-1">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {user.name}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
+                {avatarPreview !== user.avatar && (
+                  <div className="mt-2 flex gap-2 justify-center sm:justify-start">
+                    <Button
+                      size="sm"
+                      onClick={handleAvatarSave}
+                      disabled={avatarLoading}
+                    >
+                      {avatarLoading ? 'Saving...' : 'Save Avatar'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setAvatarPreview(user.avatar || null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
+            {user.avatar && (
+              <div className="mt-4 flex justify-center sm:justify-start">
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={handleAvatarRemove}
+                  disabled={avatarLoading}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Remove Avatar
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Profile Form */}
@@ -138,8 +245,8 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3">
-              <Button type="submit" disabled={loading}>
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                 {loading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
