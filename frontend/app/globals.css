@@ -60,10 +60,22 @@
   --color-ring: #f59e0b;
 }
 
+.dark.accent-amber {
+  --color-primary: #fbbf24;
+  --color-primary-foreground: #451a03;
+  --color-ring: #fbbf24;
+}
+
 .accent-blue {
   --color-primary: #3b82f6;
   --color-primary-foreground: #ffffff;
   --color-ring: #3b82f6;
+}
+
+.dark.accent-blue {
+  --color-primary: #60a5fa;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #60a5fa;
 }
 
 .accent-pink {
@@ -72,10 +84,22 @@
   --color-ring: #ec4899;
 }
 
+.dark.accent-pink {
+  --color-primary: #f472b6;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #f472b6;
+}
+
 .accent-rose {
   --color-primary: #f43f5e;
   --color-primary-foreground: #fff1f2;
   --color-ring: #f43f5e;
+}
+
+.dark.accent-rose {
+  --color-primary: #fb7185;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #fb7185;
 }
 
 .accent-emerald {
@@ -84,10 +108,22 @@
   --color-ring: #10b981;
 }
 
+.dark.accent-emerald {
+  --color-primary: #34d399;
+  --color-primary-foreground: #064e3b;
+  --color-ring: #34d399;
+}
+
 .accent-black {
   --color-primary: #1f2937;
   --color-primary-foreground: #f9fafb;
   --color-ring: #1f2937;
+}
+
+.dark.accent-black {
+  --color-primary: #4b5563;
+  --color-primary-foreground: #f9fafb;
+  --color-ring: #4b5563;
 }
 
 * {

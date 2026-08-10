@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutGrid, FolderKanban, Settings, User, LogOut } from 'lucide-react';
+import { LayoutGrid, FolderKanban, Settings, User, LogOut, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
@@ -16,20 +15,43 @@ const accountNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
+
+  const handleNavClick = (href: string) => {
+    router.push(href);
+    if (onClose) onClose();
+  };
+
+  const handleLogout = () => {
+    logout();
+    if (onClose) onClose();
+  };
 
   return (
     <div className="flex h-full w-64 flex-col bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-sm">AS</span>
           </div>
           <span className="font-semibold text-gray-900 dark:text-white">AbleSpace</span>
         </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -42,11 +64,11 @@ export function Sidebar() {
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <Link
+                <button
                   key={item.name}
-                  href={item.href}
+                  onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    'w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
@@ -54,7 +76,7 @@ export function Sidebar() {
                 >
                   <item.icon className="h-5 w-5 mr-3" />
                   {item.name}
-                </Link>
+                </button>
               );
             })}
           </nav>
@@ -68,11 +90,11 @@ export function Sidebar() {
             {accountNavigation.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <Link
+                <button
                   key={item.name}
-                  href={item.href}
+                  onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    'w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
@@ -80,7 +102,7 @@ export function Sidebar() {
                 >
                   <item.icon className="h-5 w-5 mr-3" />
                   {item.name}
-                </Link>
+                </button>
               );
             })}
           </nav>
@@ -91,8 +113,12 @@ export function Sidebar() {
       <div className="border-t border-gray-200 dark:border-gray-800 p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
-              {user?.name?.charAt(0).toUpperCase() || 'G'}
+            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user?.name?.charAt(0).toUpperCase() || 'G'
+              )}
             </div>
           </div>
           <div className="ml-3 flex-1">
@@ -104,7 +130,7 @@ export function Sidebar() {
             </p>
           </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             title="Logout"
           >
