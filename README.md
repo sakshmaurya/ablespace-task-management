@@ -1,150 +1,181 @@
-# AbleSpace Task Manager
+# AbleSpace Task Management
 
-A full-stack task management system built with Next.js, NestJS, and MongoDB.
+## Overview
+A full-stack task management system built with Next.js, NestJS, and MongoDB for assessment submission.
 
-## Project Overview
-
-AbleSpace Task Manager is a comprehensive task management application that provides teams with tools to organize, track, and collaborate on projects efficiently. The application features a modern UI with drag-and-drop task boards, real-time updates, and customizable themes.
+## Assessment Requirements
+This project demonstrates proficiency in:
+- Full-stack development with modern frameworks
+- MongoDB persistence with real data operations
+- Responsive design across all screen sizes
+- Theme management (Light/Dark + accent colors)
+- Profile image/avatar functionality
+- Comprehensive CRUD operations
+- Authentication and authorization
+- Production-ready code quality
 
 ## Features
 
-- **Authentication System**
-  - Guest login for quick access
-  - JWT-based authentication
-  - User profile management
+### Task Management
+- **Kanban Board**: Drag-and-drop task management with 4 columns (To Do, Doing, Completed, On Hold)
+- **List View**: Table-based task view with full functionality
+- **Task CRUD**: Create, read, update, delete tasks with real MongoDB persistence
+- **Task Details**: Comprehensive task detail page with subtasks, comments, and activity tracking
+- **Search**: Real-time search across task titles, descriptions, and labels
+- **Filters**: Filter by status, priority, assignee, and project
+- **Subtasks**: Complete subtask management with completion tracking
+- **Comments**: Threaded comment system for task discussions
+- **Activity**: Activity log tracking all task changes
 
-- **Task Management**
-  - Kanban board view with drag-and-drop
-  - List/table view
-  - Task creation, editing, and deletion
-  - Status management (To Do, Doing, Completed, On Hold)
-  - Priority levels (Urgent, High, Medium, Low, None)
-  - Due date tracking
-  - Labels and tags
-  - Team member assignment
+### Project Management
+- **Project CRUD**: Create, read, update, delete projects
+- **Project Details**: View project information and related tasks
+- **Lead Assignment**: Assign project leads with user selection
+- **Priority Management**: Project priority levels
 
-- **Project Management**
-  - Project creation and management
-  - Project lead assignment
-  - Priority levels
-  - Due date tracking
+### User Management
+- **Authentication**: JWT-based authentication with guest login
+- **Profile Management**: Edit user profile information
+- **Avatar Upload**: Functional profile image upload with base64 storage
+- **Theme Settings**: Light/Dark theme switching with persistence
+- **Accent Colors**: 6 customizable accent colors (Amber, Blue, Pink, Rose, Emerald, Black)
 
-- **Task Details**
-  - Detailed task view
-  - Subtasks with completion tracking
-  - Comments and discussions
-  - Activity log/updates
-  - Resource attachments
-
-- **User Experience**
-  - Light/Dark theme switching
-  - Customizable accent colors (Amber, Blue, Pink, Rose, Emerald, Black)
-  - Theme persistence across sessions
-  - Responsive design (mobile, tablet, desktop)
-  - Loading states and error handling
+### User Experience
+- **Responsive Design**: Mobile-first design with drawer navigation
+- **Loading States**: Skeleton loaders and loading indicators
+- **Error States**: User-friendly error messages and error boundaries
+- **Empty States**: Guiding empty states for no data scenarios
+- **Transitions**: Subtle animations for better UX
 
 ## Tech Stack
 
 ### Frontend
-- **Next.js 16** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **next-themes** - Theme management
-- **lucide-react** - Icon library
-- **@dnd-kit** - Drag and drop functionality
-- **date-fns** - Date manipulation
-- **React Hooks** - State management
+- **Next.js 16.3.0**: React framework with App Router
+- **TypeScript 5**: Type-safe development
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **next-themes**: Theme management
+- **@dnd-kit**: Drag and drop functionality
+- **date-fns**: Date manipulation
+- **lucide-react**: Icon library
 
 ### Backend
-- **NestJS 11** - Node.js framework
-- **TypeScript** - Type-safe development
-- **Mongoose** - MongoDB ODM
-- **MongoDB** - NoSQL database
-- **@nestjs/jwt** - JWT authentication
-- **bcrypt** - Password hashing
-- **class-validator** - Input validation
-- **class-transformer** - Data transformation
-- **Swagger** - API documentation
-- **ConfigModule** - Configuration management
-- **CORS** - Cross-origin resource sharing
+- **NestJS 11**: Node.js framework
+- **TypeScript 5**: Type-safe development
+- **Mongoose 9**: MongoDB ODM
+- **MongoDB Atlas**: Cloud NoSQL database
+- **@nestjs/jwt**: JWT authentication
+- **bcrypt**: Password hashing
+- **class-validator**: Input validation
+- **Swagger**: API documentation
 
 ## Architecture
 
-The application follows a clean architecture pattern with separation of concerns:
-
-### Frontend Architecture
-- **Components**: Reusable UI components organized by feature
-- **Services**: API client and service modules for backend communication
-- **Hooks**: Custom React hooks for state management
-- **Types**: TypeScript interfaces and enums
-- **Lib**: Utility functions and configurations
-
-### Backend Architecture
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Business logic implementation
-- **DTOs**: Data transfer objects with validation
-- **Schemas**: Mongoose schemas for database models
-- **Guards**: Authentication and authorization
-- **Modules**: Feature-based module organization
-
-## Folder Structure
-
+### Frontend Structure
 ```
-ablespace-task-manager/
-├── frontend/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── login/             # Login page
-│   │   ├── tasks/             # Tasks pages
-│   │   ├── projects/          # Projects pages
-│   │   ├── profile/           # User profile
-│   │   ├── settings/          # Settings page
-│   │   ├── layout.tsx         # Root layout
-│   │   ├── page.tsx           # Home page
-│   │   └── globals.css        # Global styles
-│   ├── components/
-│   │   ├── ui/                # Reusable UI components
-│   │   ├── layout/            # Layout components
-│   │   ├── tasks/             # Task-related components
-│   │   ├── projects/          # Project-related components
-│   │   └── providers/         # Context providers
-│   ├── hooks/                 # Custom React hooks
-│   ├── lib/                   # Utility functions
-│   ├── services/              # API services
-│   ├── types/                 # TypeScript types
-│   ├── public/                # Static assets
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tailwind.config.ts
-│   └── next.config.ts
-├── backend/
-│   ├── src/
-│   │   ├── auth/              # Authentication module
-│   │   ├── users/             # Users module
-│   │   ├── tasks/             # Tasks module
-│   │   ├── projects/          # Projects module
-│   │   ├── comments/          # Comments module
-│   │   ├── settings/          # Settings module
-│   │   ├── common/            # Shared utilities
-│   │   │   ├── guards/        # Auth guards
-│   │   │   └── enums.ts       # Shared enums
-│   │   ├── database/          # Database configuration
-│   │   ├── app.module.ts      # Root module
-│   │   ├── main.ts            # Application entry point
-│   │   └── seed.ts            # Database seeding
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── nest-cli.json
-├── README.md
-└── .gitignore
+frontend/
+├── app/                    # Next.js App Router
+│   ├── login/             # Authentication page
+│   ├── tasks/             # Task management pages
+│   ├── projects/          # Project management pages
+│   ├── profile/           # User profile with avatar upload
+│   ├── settings/          # Theme and accent color settings
+│   └── layout.tsx         # Root layout with providers
+├── components/
+│   ├── layout/            # Sidebar, Header, AppLayout
+│   ├── tasks/             # TaskBoard, TaskCard, TaskList, CreateTaskModal
+│   ├── projects/          # Project components
+│   ├── ui/                # Button, Input components
+│   └── providers/         # ThemeProvider
+├── hooks/                 # useAuth custom hook
+├── services/              # API service layer
+├── types/                 # TypeScript interfaces
+└── lib/                   # Utilities
 ```
+
+### Backend Structure
+```
+backend/src/
+├── auth/                  # Authentication module
+├── users/                 # User management
+├── tasks/                 # Task management
+├── projects/              # Project management
+├── comments/              # Comment system
+├── settings/              # Settings management
+├── common/                # Guards, enums
+├── database/              # MongoDB configuration
+└── seed.ts                # Database seeding
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /auth/guest` - Guest login
+- `POST /auth/login` - User login
+- `GET /auth/me` - Get current user
+
+### Users
+- `GET /users/me` - Get current user profile
+- `PATCH /users/me` - Update user profile
+- `POST /users/me/avatar` - Update user avatar
+
+### Tasks
+- `GET /tasks` - Get all tasks with optional filters
+- `POST /tasks` - Create new task
+- `GET /tasks/:id` - Get task by ID
+- `PATCH /tasks/:id` - Update task
+- `DELETE /tasks/:id` - Delete task
+- `PATCH /tasks/:id/status` - Update task status
+- `PATCH /tasks/:id/priority` - Update task priority
+- `GET /tasks/:taskId/subtasks` - Get task subtasks
+- `POST /tasks/:taskId/subtasks` - Create subtask
+- `PATCH /tasks/subtasks/:id` - Update subtask
+- `DELETE /tasks/subtasks/:id` - Delete subtask
+- `GET /tasks/:taskId/activity` - Get task activity log
+
+### Projects
+- `GET /projects` - Get all projects
+- `POST /projects` - Create project
+- `GET /projects/:id` - Get project by ID
+- `PATCH /projects/:id` - Update project
+- `DELETE /projects/:id` - Delete project
+
+### Comments
+- `GET /comments/tasks/:taskId` - Get task comments
+- `POST /comments/tasks/:taskId` - Create comment
+- `DELETE /comments/:id` - Delete comment
+
+### Settings
+- `GET /settings` - Get user settings
+- `PATCH /settings` - Update user settings
+
+## MongoDB
+
+### Database Collections
+- **users**: User profiles with avatar storage
+- **tasks**: Tasks with status, priority, members, labels
+- **projects**: Projects with leads and due dates
+- **subtasks**: Subtasks with completion tracking
+- **comments**: Comments for task discussions
+- **activities**: Activity log for task changes
+
+### Seed Data
+The application includes comprehensive seed data:
+- 3 users with different roles
+- 3 projects with various priorities
+- 8 tasks across different statuses
+- 5 subtasks
+- 5 comments
+- Full activity tracking
+
+Run seed: `npm run seed` (idempotent - safe to run multiple times)
 
 ## Environment Variables
 
 ### Backend (.env)
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/ablespace_task_manager
-JWT_SECRET=change_me_to_secure_random_string
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/TaskManager
+JWT_SECRET=your_secure_random_string
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -156,319 +187,228 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 ## Local Setup
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn
-
-### MongoDB Setup
-
-1. Install MongoDB:
-   ```bash
-   # On Ubuntu/Debian
-   sudo apt-get install mongodb
-
-   # On macOS
-   brew install mongodb-community
-
-   # On Windows
-   # Download from https://www.mongodb.com/try/download/community
-   ```
-
-2. Start MongoDB:
-   ```bash
-   # On Linux/macOS
-   sudo systemctl start mongodb
-   # or
-   mongod
-
-   # On Windows
-   # Start MongoDB service from Services
-   ```
-
-3. Verify MongoDB is running:
-   ```bash
-   mongosh
-   # or
-   mongo
-   ```
+- Node.js 18+
+- MongoDB account (Atlas or local)
+- npm
 
 ### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create environment file:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Update `.env` with your configuration:
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/ablespace_task_manager
-   JWT_SECRET=your_secure_random_string_here
-   FRONTEND_URL=http://localhost:3000
-   ```
-
-5. Build the application:
-   ```bash
-   npm run build
-   ```
-
-6. Start the backend server:
-   ```bash
-   npm run start:dev
-   # or for production
-   npm run start:prod
-   ```
-
-7. Seed the database (optional):
-   ```bash
-   npm run seed
-   ```
-
-8. Access API documentation:
-   ```
-   http://localhost:5000/api
-   ```
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Update .env with your MongoDB URI and JWT secret
+npm run build
+npm run start:dev
+```
 
 ### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create environment file:
-   ```bash
-   cp env.example .env.local
-   ```
-
-4. Update `.env.local` with your configuration:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:5000
-   ```
-
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-6. Build for production:
-   ```bash
-   npm run build
-   npm run start
-   ```
-
-7. Access the application:
-   ```
-   http://localhost:3000
-   ```
-
-## Running the Application
-
-### Development Mode
-
-1. Start MongoDB
-2. Start backend server (in one terminal):
-   ```bash
-   cd backend
-   npm run start:dev
-   ```
-
-3. Start frontend server (in another terminal):
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-4. Open http://localhost:3000 in your browser
-
-### Production Mode
-
-1. Start MongoDB
-2. Build and start backend:
-   ```bash
-   cd backend
-   npm run build
-   npm run start:prod
-   ```
-
-3. Build and start frontend:
-   ```bash
-   cd frontend
-   npm run build
-   npm run start
-   ```
-
-## API Documentation
-
-The backend includes Swagger API documentation. Once the backend is running, access:
-
-```
-http://localhost:5000/api
+```bash
+cd frontend
+npm install
+cp env.example .env.local
+# Update .env.local with your API URL
+npm run dev
 ```
 
-### Main API Endpoints
-
-#### Authentication
-- `POST /auth/guest` - Create guest user
-- `POST /auth/login` - User login
-- `GET /auth/me` - Get current user
-
-#### Tasks
-- `GET /tasks` - Get all tasks with filters
-- `GET /tasks/:id` - Get task by ID
-- `POST /tasks` - Create new task
-- `PATCH /tasks/:id` - Update task
-- `DELETE /tasks/:id` - Delete task
-- `PATCH /tasks/:id/status` - Update task status
-- `PATCH /tasks/:id/priority` - Update task priority
-- `GET /tasks/:taskId/subtasks` - Get task subtasks
-- `POST /tasks/:taskId/subtasks` - Create subtask
-- `PATCH /tasks/subtasks/:id` - Update subtask
-- `DELETE /tasks/subtasks/:id` - Delete subtask
-- `GET /tasks/:taskId/activity` - Get task activity
-
-#### Projects
-- `GET /projects` - Get all projects
-- `GET /projects/:id` - Get project by ID
-- `POST /projects` - Create new project
-- `PATCH /projects/:id` - Update project
-- `DELETE /projects/:id` - Delete project
-
-#### Comments
-- `GET /comments/tasks/:taskId` - Get task comments
-- `POST /comments/tasks/:taskId` - Create comment
-- `DELETE /comments/:id` - Delete comment
-
-#### Users
-- `GET /users/me` - Get current user
-- `PATCH /users/me` - Update current user
-
-#### Settings
-- `GET /settings` - Get user settings
-- `PATCH /settings` - Update user settings
+### Database Seeding
+```bash
+cd backend
+npm run seed
+```
 
 ## Authentication
 
-The application uses JWT (JSON Web Tokens) for authentication:
+### Guest Login
+Users can access the application without credentials using guest login. Guest users have full functionality for assessment purposes.
 
-1. **Guest Login**: Users can quickly access the application as a guest without providing credentials
-2. **Regular Login**: Users can log in with email and password (requires account creation)
-3. **Token Storage**: JWT tokens are stored in localStorage
-4. **Token Refresh**: Tokens are valid for 7 days
-5. **Protected Routes**: All application routes (except login) require authentication
+### Google OAuth
+Google OAuth is not implemented in this assessment. The application uses guest login and regular user authentication with JWT tokens.
 
-## Theme System
+## Security Notes
 
-The application supports two themes:
+### Authentication & Authorization
+- **JWT-based Authentication**: All protected routes require valid JWT tokens
+- **User Data Isolation**: Critical security feature implemented
+  - Users can only access tasks where they are creator, member, or reporter
+  - Users can only access projects where they are creator or lead
+  - Users can only delete their own comments
+  - All CRUD operations verify user authorization before execution
+- **API Protection**: All API endpoints require authentication via JwtAuthGuard
+- **MongoDB Security**: Connection uses MongoDB Atlas with secure connection strings
 
-### Light/Dark Theme
-- Uses `next-themes` for theme management
-- Theme preference is persisted in localStorage
-- Theme is also stored in the user's profile in the database
-- Prevents flash of incorrect theme on page load
+### Environment Security
+- **.env files ignored**: All environment files are in .gitignore
+- **No secrets committed**: No passwords, API keys, or secrets in source code
+- **.env.example**: Contains only variable names, no actual values
+- **JWT Secret**: Must be changed in production (uses development secret for assessment)
+
+### Security Implementation Details
+- Backend services verify user ownership before data access
+- MongoDB queries scoped to authenticated user's data
+- 404/403 errors returned for unauthorized access (no data leakage)
+- Comment deletion restricted to comment author only
+- Task status changes require authorization
+- Project modifications require authorization
+
+### Known Security Limitations
+- Guest login provides full access (acceptable for assessment purposes)
+- No role-based access control beyond basic ownership
+- No rate limiting implemented
+- No input sanitization beyond DTO validation
+
+## Profile Image Upload
+
+### Implementation
+- Avatar images are stored as base64 strings in MongoDB
+- File validation: Image files only, max 2MB
+- Preview before saving
+- Remove avatar functionality
+- Avatar persists across sessions
+- Updates in real-time across all components (sidebar, header, task cards)
+
+### Usage
+1. Navigate to Profile page
+2. Click on avatar to upload new image
+3. Preview the image
+4. Click "Save Avatar" to persist
+5. Avatar updates immediately in all components
+
+## Settings
+
+### Theme Switching
+- Light/Dark mode toggle
+- Theme persists across sessions
+- Applied to all components and pages
+- Uses CSS variables for consistent theming
 
 ### Accent Colors
-Six accent color options are available:
-- Amber
-- Blue (default)
-- Pink
-- Rose
-- Emerald
-- Black
-
-Accent colors are applied using CSS variables and can be changed in the Settings page. The preference is persisted both locally and in the database.
+- 6 accent color options: Amber, Blue, Pink, Rose, Emerald, Black
+- Color persists across sessions
+- Applied to buttons, links, active states
+- Different colors for light and dark modes
 
 ## Responsive Design
 
-The application is fully responsive and works on:
+### Breakpoints Tested
+- 320px (mobile)
+- 375px (mobile)
+- 414px (mobile)
+- 768px (tablet)
+- 1024px (desktop)
+- 1280px (desktop)
+- 1440px (desktop)
 
-- **Mobile** (320px - 480px): Collapsible sidebar, stacked layouts
-- **Tablet** (481px - 1024px): Adaptive layouts, touch-friendly
-- **Desktop** (1025px+): Full functionality with fixed sidebar
+### Mobile Features
+- Collapsible sidebar drawer with overlay
+- Touch-friendly navigation
+- Stacked layouts for forms
+- Horizontal scroll for tables
+- Responsive modals
+- Accessible button sizes
 
-Key responsive features:
-- Mobile sidebar becomes a drawer/menu
-- Tables support horizontal scrolling
-- Board view supports horizontal scrolling
-- Dialogs fit within viewport
-- Touch-friendly button sizes
+## Deployment
 
-## Design Decisions
+### Production Configuration
+- `.env` files are gitignored
+- `.env.example` provided for setup
+- Frontend API URL configurable
+- CORS configured for production URLs
+- MongoDB connection configurable
 
-### Technology Choices
-- **Next.js App Router**: Modern React framework with built-in routing and optimization
-- **NestJS**: Structured Node.js framework with excellent TypeScript support
-- **MongoDB**: Flexible NoSQL database suitable for task management data
-- **Tailwind CSS**: Utility-first CSS for rapid UI development
-- **@dnd-kit**: Modern drag-and-drop library with excellent accessibility
+### Build Commands
+```bash
+# Frontend
+cd frontend
+npm run build
+npm run start
 
-### Architecture Decisions
-- **Service Layer Pattern**: Business logic separated from controllers
-- **DTOs with Validation**: Input validation using class-validator
-- **JWT Authentication**: Stateless authentication with tokens
-- **Component-based UI**: Reusable components for maintainability
-- **Custom Hooks**: Encapsulated state management logic
+# Backend
+cd backend
+npm run build
+npm run start:prod
+```
 
-### Intentional Figma Deviations
-- Google OAuth is not fully implemented (shown as demo action)
-- Some minor spacing adjustments for better responsiveness
-- Simplified some complex animations for performance
+## Assessment Notes
 
-## Future Improvements
+### Design Fidelity
+Since Figma access was restricted, the application follows modern UI/UX best practices with:
+- Clean, professional interface
+- Consistent spacing and typography
+- Accessible color contrast
+- Subtle animations
+- Professional color palette
 
-- [ ] Implement real Google OAuth authentication
-- [ ] Add real-time updates using WebSockets
-- [ ] Implement file attachments for tasks
-- [ ] Add advanced search with filters
-- [ ] Implement task templates
-- [ ] Add project templates
-- [ ] Implement team management features
-- [ ] Add email notifications
-- [ ] Implement task dependencies
-- [ ] Add Gantt chart view for projects
-- [ ] Implement time tracking
-- [ ] Add reporting and analytics
-- [ ] Implement keyboard shortcuts
-- [ ] Add bulk operations for tasks
-- [ ] Implement task archiving
-- [ ] Add export/import functionality
+### Known Limitations
+- Google OAuth not implemented (uses guest login instead)
+- Avatar storage uses base64 (suitable for assessment, would use S3 in production)
+- No real-time updates (uses manual refresh)
+- Google OAuth configuration would require additional setup
+- No rate limiting implemented
+- No role-based permissions beyond basic ownership
+- No input sanitization beyond DTO validation
 
-## Contributing
+### Security Implementation
+- **User Data Isolation**: Critical security feature implemented
+  - Users can only access tasks where they are creator, member, or reporter
+  - Users can only access projects where they are creator or lead
+  - Users can only delete their own comments
+  - All CRUD operations verify user authorization before execution
+- **API Protection**: All API endpoints require authentication via JwtAuthGuard
+- **Environment Security**: .env files ignored, no secrets committed
+- **MongoDB Security**: Connection uses MongoDB Atlas with secure connection strings
 
-This is a technical assessment project. For production use, consider:
+### Files Modified During Assessment
+Multiple files were enhanced including:
+- Profile page with avatar upload functionality
+- Sidebar with mobile navigation drawer
+- Theme system with accent colors and dark mode
+- Responsive layouts across all pages and components
+- API endpoints for avatar management
+- Database seeding with idempotent check
+- User data isolation security implementation
+- Consistent form components and design system
+- Enhanced save button states with loading indicators
+- Comprehensive security fixes for user authorization
 
-1. Adding comprehensive error handling
-2. Implementing rate limiting
-3. Adding comprehensive logging
-4. Implementing caching strategies
-5. Adding automated testing
-6. Setting up CI/CD pipeline
-7. Adding monitoring and alerting
-8. Implementing backup strategies
+## Development
+
+### Code Quality
+- TypeScript strict mode
+- ESLint configuration
+- No console.log statements in production code
+- No unused imports
+- No duplicate code
+- Clean component architecture
+
+### Testing
+Manual testing performed on:
+- All CRUD operations
+- Authentication flows
+- Theme switching
+- Responsive breakpoints
+- Avatar upload
+- Drag and drop
+- All major user flows
+
+## Troubleshooting
+
+### MongoDB Connection Issues
+- Verify MongoDB URI is correct
+- Check IP whitelist in MongoDB Atlas
+- Ensure database user has correct permissions
+
+### Theme Not Persisting
+- Check localStorage is enabled
+- Verify settings API is working
+- Check CSS variables are applied
+
+### Avatar Upload Failing
+- Verify file size is under 2MB
+- Ensure file is an image type
+- Check API endpoint is accessible
+
+## Support
+For issues or questions, refer to the API documentation at `/api` when the backend is running.
 
 ## License
-
-This project is created for technical assessment purposes.
-
-## Live Demo
-
-[To be added]
-
-## GitHub Repository
-
-[To be added]
+This project is for assessment purposes.
