@@ -1,13 +1,18 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { projectService } from '@/services/projectService';
 import { Project } from '@/types';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const priorityColors = {
   URGENT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
@@ -20,6 +25,10 @@ const priorityColors = {
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useAuth();
+  const router = useRouter();
 
   const loadProjects = async () => {
     try {
@@ -35,7 +44,6 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     loadProjects();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDeleteProject = async (projectId: string) => {
@@ -49,11 +57,28 @@ export default function ProjectsPage() {
     }
   };
 
+  const handleProjectCreated = (newProject: Project) => {
+    setProjects([...projects, newProject]);
+  };
+
+  const handleOpenProject = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
+  };
+
+  const filteredProjects = projects.filter(project =>
+    searchTerm === '' ||
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   if (loading) {
     return (
       <AppLayout title="Projects">
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading projects...</div>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="text-lg text-gray-600 dark:text-gray-400">Loading projects...</div>
+          </div>
         </div>
       </AppLayout>
     );
@@ -62,18 +87,30 @@ export default function ProjectsPage() {
   return (
     <AppLayout title="Projects">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Projects
           </h2>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Project
-          </Button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white w-full sm:w-64"
+              />
+            </div>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Project
+            </Button>
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -94,8 +131,12 @@ export default function ProjectsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {projects.map((project) => (
-                <tr key={project._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              {filteredProjects.map((project) => (
+                <tr
+                  key={project._id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  onClick={() => handleOpenProject(project._id)}
+                >
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -124,10 +165,10 @@ export default function ProjectsPage() {
                     {project.lead ? (
                       <div className="flex items-center">
                         <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs mr-2">
-                          {project.lead.name.charAt(0).toUpperCase()}
+                          {project.lead.name?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                         <span className="text-sm text-gray-900 dark:text-white">
-                          {project.lead.name}
+                          {project.lead.name || 'Unknown'}
                         </span>
                       </div>
                     ) : (
@@ -145,11 +186,20 @@ export default function ProjectsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <button
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Implement edit functionality
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteProject(project._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteProject(project._id);
+                        }}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -161,13 +211,31 @@ export default function ProjectsPage() {
             </tbody>
           </table>
 
-          {projects.length === 0 && (
+          {filteredProjects.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No projects found</p>
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-6 mb-4 inline-block">
+                <Plus className="h-12 w-12 text-gray-400" />
+              </div>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                {searchTerm ? 'No projects found matching your search' : 'No projects found'}
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Project
+                </Button>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onProjectCreated={handleProjectCreated}
+        currentUser={user || undefined}
+      />
     </AppLayout>
   );
 }

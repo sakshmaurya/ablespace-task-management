@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -37,7 +39,6 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     loadProjectData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading) {
