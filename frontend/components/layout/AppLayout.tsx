@@ -47,10 +47,15 @@ export function AppLayout({ children, title }: AppLayoutProps) {
     );
   }
 
+  useEffect(() => {
   if (!isAuthenticated) {
     router.push('/login');
-    return null;
   }
+}, [isAuthenticated, router]);
+
+if (!isAuthenticated) {
+  return null;
+}
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-950">
@@ -62,16 +67,20 @@ export function AppLayout({ children, title }: AppLayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ease-in-out"
           onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-50 dark:bg-gray-900 transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-50 dark:bg-gray-900 transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
       >
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
