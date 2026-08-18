@@ -45,8 +45,8 @@ export default function TaskCard({ task }: TaskCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        'bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-md transition-shadow',
-        isDragging && 'opacity-50'
+        'bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out',
+        isDragging && 'opacity-50 shadow-lg rotate-2 scale-105'
       )}
       onClick={handleClick}
       {...attributes}
@@ -57,8 +57,9 @@ export default function TaskCard({ task }: TaskCardProps) {
           {task.title}
         </h4>
         <button
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md p-1 transition-colors"
           onClick={(e) => e.stopPropagation()}
+          aria-label="More options"
         >
           <MoreHorizontal className="h-4 w-4" />
         </button>

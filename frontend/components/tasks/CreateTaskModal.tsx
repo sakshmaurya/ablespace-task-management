@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Select } from '@/components/ui/Select';
 import { Task, TaskStatus, Priority, Project, User } from '@/types';
 import { taskService } from '@/services/taskService';
 import { projectService } from '@/services/projectService';
@@ -94,15 +96,16 @@ export default function CreateTaskModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Create New Task
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md p-1 transition-colors"
+            aria-label="Close modal"
           >
             <X className="h-6 w-6" />
           </button>
@@ -129,51 +132,40 @@ export default function CreateTaskModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description
-            </label>
-            <textarea
+            <Textarea
+              label="Description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Enter task description"
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as TaskStatus })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value={TaskStatus.TODO} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">To Do</option>
-                <option value={TaskStatus.DOING} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Doing</option>
-                <option value={TaskStatus.COMPLETED} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Completed</option>
-                <option value={TaskStatus.ON_HOLD} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">On Hold</option>
-              </select>
-            </div>
+            <Select
+              label="Status"
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as TaskStatus })}
+              options={[
+                { value: TaskStatus.TODO, label: 'To Do' },
+                { value: TaskStatus.DOING, label: 'Doing' },
+                { value: TaskStatus.COMPLETED, label: 'Completed' },
+                { value: TaskStatus.ON_HOLD, label: 'On Hold' },
+              ]}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Priority
-              </label>
-              <select
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value={Priority.NONE} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">None</option>
-                <option value={Priority.URGENT} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Urgent</option>
-                <option value={Priority.HIGH} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">High</option>
-                <option value={Priority.MEDIUM} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Medium</option>
-                <option value={Priority.LOW} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Low</option>
-              </select>
-            </div>
+            <Select
+              label="Priority"
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
+              options={[
+                { value: Priority.NONE, label: 'None' },
+                { value: Priority.URGENT, label: 'Urgent' },
+                { value: Priority.HIGH, label: 'High' },
+                { value: Priority.MEDIUM, label: 'Medium' },
+                { value: Priority.LOW, label: 'Low' },
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,23 +180,15 @@ export default function CreateTaskModal({
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Project
-              </label>
-              <select
-                value={formData.projectId}
-                onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">No Project</option>
-                {projects.map((project) => (
-                  <option key={project._id} value={project._id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <Select
+              label="Project"
+              value={formData.projectId}
+              onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
+              options={[
+                { value: '', label: 'No Project' },
+                ...projects.map((project) => ({ value: project._id, label: project.name })),
+              ]}
+            />
           </div>
 
           <div>

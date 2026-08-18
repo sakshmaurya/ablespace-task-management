@@ -68,11 +68,12 @@ export function Sidebar({ onClose }: SidebarProps) {
                   key={item.name}
                   onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    'w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    'w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ease-in-out',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:translate-x-1'
                   )}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <item.icon className="h-5 w-5 mr-3" />
                   {item.name}
@@ -110,10 +111,10 @@ export function Sidebar({ onClose }: SidebarProps) {
       </div>
 
       {/* User Info */}
-      <div className="border-t border-gray-200 dark:border-gray-800 p-4">
-        <div className="flex items-center">
+      <div className="border-t border-gray-200 dark:border-gray-800 p-3 sm:p-4">
+        <div className="flex items-center gap-3">
           <div className="flex-shrink-0">
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium overflow-hidden">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium overflow-hidden">
               {user?.avatar ? (
                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -121,18 +122,19 @@ export function Sidebar({ onClose }: SidebarProps) {
               )}
             </div>
           </div>
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
               {user?.name || 'Guest User'}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
               {user?.email || 'guest@ablespace.local'}
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
             title="Logout"
+            aria-label="Logout"
           >
             <LogOut className="h-5 w-5" />
           </button>

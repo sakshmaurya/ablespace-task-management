@@ -120,14 +120,14 @@ export default function ProfilePage() {
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
               <div className="relative group">
-                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden">
+                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden ring-2 ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700 transition-all duration-200">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
                     user?.name?.charAt(0)?.toUpperCase() || 'G'
                   )}
                 </div>
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
                   <label htmlFor="avatar-upload" className="cursor-pointer">
                     <Camera className="h-6 w-6 text-white" />
                   </label>

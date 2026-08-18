@@ -83,7 +83,7 @@ export default function TaskList({
                 {statusTasks.map((task) => (
                   <tr
                     key={task._id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-150 ease-in-out"
                     onClick={() => handleTaskClick(task._id)}
                   >
                     <td className="px-4 py-4">
@@ -180,7 +180,7 @@ export default function TaskList({
                             e.stopPropagation();
                             onStatusChange(task._id, e.target.value as TaskStatus);
                           }}
-                          className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-150"
                         >
                           <option value={TaskStatus.TODO} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">To Do</option>
                           <option value={TaskStatus.DOING} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Doing</option>
@@ -192,7 +192,7 @@ export default function TaskList({
                             e.stopPropagation();
                             onTaskDelete(task._id);
                           }}
-                          className="text-red-500 hover:text-red-700 text-xs"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded text-xs transition-colors duration-150"
                         >
                           Delete
                         </button>

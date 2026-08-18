@@ -91,9 +91,9 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => handleThemeChange(Theme.LIGHT)}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 rounded-lg border-2 transition-all duration-200 ease-in-out hover:shadow-sm ${
                   theme === Theme.LIGHT
-                    ? 'border-primary bg-primary/5'
+                    ? 'border-primary bg-primary/5 shadow-sm'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -104,9 +104,9 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => handleThemeChange(Theme.DARK)}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 rounded-lg border-2 transition-all duration-200 ease-in-out hover:shadow-sm ${
                   theme === Theme.DARK
-                    ? 'border-primary bg-primary/5'
+                    ? 'border-primary bg-primary/5 shadow-sm'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -130,14 +130,14 @@ export default function SettingsPage() {
               <button
                 key={color.value}
                 onClick={() => handleAccentColorChange(color.value)}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 rounded-lg border-2 transition-all duration-200 ease-in-out hover:shadow-sm hover:scale-105 ${
                   accentColor === color.value
-                    ? 'border-primary bg-primary/5 ring-2 ring-primary ring-offset-2'
+                    ? 'border-primary bg-primary/5 ring-2 ring-primary ring-offset-2 shadow-sm'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
                 title={color.name}
               >
-                <div className={`w-8 h-8 rounded-full ${color.color} mx-auto mb-2`} />
+                <div className={`w-8 h-8 rounded-full ${color.color} mx-auto mb-2 transition-transform duration-200`} />
                 <span className="text-xs font-medium text-gray-900 dark:text-white">
                   {color.name}
                 </span>
