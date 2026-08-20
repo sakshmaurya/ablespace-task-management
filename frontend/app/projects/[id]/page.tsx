@@ -1,449 +1,376 @@
 'use client';
 
-/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { projectService } from '@/services/projectService';
-import { taskService } from '@/services/taskService';
-import { Project, Task, Priority } from '@/types';
-import { ArrowLeft, Plus, Edit, Save, X } from 'lucide-react';
-import TaskCard from '@/components/tasks/TaskCard';
+import { Project } from '@/types';
+import { Plus, Trash2, Edit, Search } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
-export default function ProjectDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const priorityColors = {
+  URGENT:
+    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  HIGH:
+    'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  MEDIUM:
+    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  LOW:
+    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  NONE:
+    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+};
 
-  const projectId = params.id as string;
-  const editMode = searchParams.get('edit') === 'true';
-
-  const [project, setProject] = useState<Project | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(editMode);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(
+    null
+  );
 
-  const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    priority?: Priority;
-    dueDate: string;
-  }>({
-    name: '',
-    description: '',
-    priority: undefined,
-    dueDate: '',
-  });
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const loadProjectData = async () => {
+  // Load projects from API
+  const loadProjects = async () => {
     try {
       setLoading(true);
 
-      const [projectData, tasksData] = await Promise.all([
-        projectService.getProject(projectId),
-        taskService.getTasks({ projectId }),
-      ]);
+      const data = await projectService.getProjects();
 
-      setProject(projectData);
-      setTasks(tasksData);
-
-      setFormData({
-        name: projectData.name || '',
-        description: projectData.description || '',
-        priority: projectData.priority,
-        dueDate: projectData.dueDate
-          ? new Date(projectData.dueDate).toISOString().split('T')[0]
-          : '',
-      });
+      setProjects(data);
     } catch (error) {
-      console.error('Failed to load project data:', error);
+      console.error('Failed to load projects:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadProjectData();
-  }, [projectId]);
+    loadProjects();
+  }, []);
 
-  useEffect(() => {
-    setIsEditing(editMode);
-  }, [editMode]);
+  // Delete project
+  const handleDeleteProject = async (projectId: string) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this project?'
+    );
 
-  const resetForm = () => {
-    if (!project) return;
-
-    setFormData({
-      name: project.name || '',
-      description: project.description || '',
-      priority: project.priority,
-      dueDate: project.dueDate
-        ? new Date(project.dueDate).toISOString().split('T')[0]
-        : '',
-    });
-  };
-
-  const handleStartEdit = () => {
-    resetForm();
-    setIsEditing(true);
-
-    router.replace(`/projects/${projectId}?edit=true`);
-  };
-
-  const handleCancelEdit = () => {
-    resetForm();
-    setIsEditing(false);
-
-    router.replace(`/projects/${projectId}`);
-  };
-
-  const handleSaveProject = async () => {
-    if (!project) return;
-
-    const projectName = formData.name.trim();
-
-    if (!projectName) {
-      alert('Project name is required.');
+    if (!confirmed) {
       return;
     }
 
     try {
-      setSaving(true);
+      setDeletingProjectId(projectId);
 
-      const updatedProject = await projectService.updateProject(
-        projectId,
-        {
-          name: projectName,
-          description: formData.description.trim(),
-          ...(formData.priority
-            ? { priority: formData.priority }
-            : {}),
-          ...(formData.dueDate
-            ? { dueDate: formData.dueDate }
-            : {}),
-        }
+      await projectService.deleteProject(projectId);
+
+      // Immediately remove deleted project from UI
+      setProjects((currentProjects) =>
+        currentProjects.filter((project) => project._id !== projectId)
       );
-
-      setProject(updatedProject);
-
-      setFormData({
-        name: updatedProject.name || '',
-        description: updatedProject.description || '',
-        priority: updatedProject.priority,
-        dueDate: updatedProject.dueDate
-          ? new Date(updatedProject.dueDate)
-              .toISOString()
-              .split('T')[0]
-          : '',
-      });
-
-      setIsEditing(false);
-
-      router.replace(`/projects/${projectId}`);
     } catch (error) {
-      console.error('Failed to update project:', error);
-      alert('Failed to update project. Please try again.');
+      console.error('Failed to delete project:', error);
+
+      alert('Failed to delete project. Please try again.');
     } finally {
-      setSaving(false);
+      setDeletingProjectId(null);
     }
   };
 
+  // Create project
+  const handleProjectCreated = (newProject: Project) => {
+    setProjects((currentProjects) => [
+      ...currentProjects,
+      newProject,
+    ]);
+
+    setIsCreateModalOpen(false);
+  };
+
+  // Open project details
+  const handleOpenProject = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
+  };
+
+  // Open project edit page
+  const handleEditProject = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    projectId: string
+  ) => {
+    event.stopPropagation();
+
+    router.push(`/projects/${projectId}?edit=true`);
+  };
+
+  const filteredProjects = projects.filter((project) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      searchTerm === '' ||
+      project.name.toLowerCase().includes(search) ||
+      (project.description &&
+        project.description.toLowerCase().includes(search))
+    );
+  });
+
   if (loading) {
     return (
-      <AppLayout title="Project Details">
+      <AppLayout title="Projects">
         <div className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
 
             <div className="text-lg text-gray-600 dark:text-gray-400">
-              Loading project...
+              Loading projects...
             </div>
           </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  if (!project) {
-    return (
-      <AppLayout title="Project Details">
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <div className="text-lg text-gray-600 dark:text-gray-400">
-            Project not found
-          </div>
-
-          <Button onClick={() => router.push('/projects')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Projects
-          </Button>
         </div>
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout title={isEditing ? 'Edit Project' : project.name}>
+    <AppLayout title="Projects">
       <div className="space-y-6">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/projects')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Projects
+          </h2>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">
-            {isEditing ? 'Edit Project' : project.name}
-          </h1>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
 
-          {!isEditing && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={handleStartEdit}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Project
-              </Button>
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Task
-              </Button>
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(event) =>
+                  setSearchTerm(event.target.value)
+                }
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white w-full sm:w-64"
+              />
             </div>
-          )}
+
+            {/* Add Project */}
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Project
+            </Button>
+          </div>
         </div>
 
-        {/* Edit Form */}
-        {isEditing ? (
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-              Edit Project Details
-            </h2>
+        {/* Projects Table */}
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
 
-            <div className="space-y-5">
+          <table className="w-full min-w-[800px]">
 
-              {/* Name */}
-              <div>
-                <label
-                  htmlFor="project-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Project Name
-                </label>
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Project
+                </th>
 
-                <input
-                  id="project-name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(event) =>
-                    setFormData((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Priority
+                </th>
+
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Lead
+                </th>
+
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Due Date
+                </th>
+
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+
+              {filteredProjects.map((project) => (
+                <tr
+                  key={project._id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  onClick={() =>
+                    handleOpenProject(project._id)
                   }
-                  placeholder="Enter project name"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+                >
+
+                  {/* Project */}
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {project.name}
+                      </p>
+
+                      {project.description && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                          {project.description}
+                        </p>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Priority */}
+                  <td className="px-6 py-4">
+                    {project.priority && (
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                          priorityColors[project.priority]
+                        )}
+                      >
+                        {project.priority}
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Lead */}
+                  <td className="px-6 py-4">
+                    {project.lead ? (
+                      <div className="flex items-center">
+
+                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs mr-2">
+                          {project.lead.name
+                            ?.charAt(0)
+                            ?.toUpperCase() || '?'}
+                        </div>
+
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {project.lead.name || 'Unknown'}
+                        </span>
+
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        —
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Due Date */}
+                  <td className="px-6 py-4">
+                    {project.dueDate ? (
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {format(
+                          new Date(project.dueDate),
+                          'MMM d, yyyy'
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        —
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+
+                      {/* Edit */}
+                      <button
+                        type="button"
+                        title="Edit project"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        onClick={(event) =>
+                          handleEditProject(
+                            event,
+                            project._id
+                          )
+                        }
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
+                        title="Delete project"
+                        disabled={
+                          deletingProjectId === project._id
+                        }
+                        onClick={(event) => {
+                          event.stopPropagation();
+
+                          handleDeleteProject(
+                            project._id
+                          );
+                        }}
+                        className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+
+                    </div>
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+          </table>
+
+          {/* Empty State */}
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-12">
+
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-6 mb-4 inline-block">
+                <Plus className="h-12 w-12 text-gray-400" />
               </div>
 
-              {/* Description */}
-              <div>
-                <label
-                  htmlFor="project-description"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Description
-                </label>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                {searchTerm
+                  ? 'No projects found matching your search'
+                  : 'No projects found'}
+              </p>
 
-                <textarea
-                  id="project-description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={(event) =>
-                    setFormData((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
+              {!searchTerm && (
+                <Button
+                  onClick={() =>
+                    setIsCreateModalOpen(true)
                   }
-                  placeholder="Enter project description"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                />
-              </div>
-
-              {/* Priority + Due Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                {/* Priority */}
-                <div>
-                  <label
-                    htmlFor="project-priority"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Priority
-                  </label>
-
-                  <select
-                    id="project-priority"
-                    value={formData.priority ?? ''}
-                    onChange={(event) =>
-                      setFormData((current) => ({
-                        ...current,
-                        priority: event.target.value
-                          ? (event.target.value as Priority)
-                          : undefined,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="">No priority</option>
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
-                </div>
-
-                {/* Due Date */}
-                <div>
-                  <label
-                    htmlFor="project-due-date"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Due Date
-                  </label>
-
-                  <input
-                    id="project-due-date"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(event) =>
-                      setFormData((current) => ({
-                        ...current,
-                        dueDate: event.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-
-                <Button
-                  variant="ghost"
-                  onClick={handleCancelEdit}
-                  disabled={saving}
                 >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Project
                 </Button>
-
-                <Button
-                  onClick={handleSaveProject}
-                  disabled={saving}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-
-              </div>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Project Info */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
-
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Project Details
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Description
-                  </p>
-
-                  <p className="text-gray-900 dark:text-white mt-1">
-                    {project.description || 'No description provided'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Lead
-                  </p>
-
-                  <p className="text-gray-900 dark:text-white mt-1">
-                    {project.lead
-                      ? project.lead.name
-                      : 'Not assigned'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Priority
-                  </p>
-
-                  <p className="text-gray-900 dark:text-white mt-1">
-                    {project.priority || 'No priority'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Due Date
-                  </p>
-
-                  <p className="text-gray-900 dark:text-white mt-1">
-                    {project.dueDate
-                      ? new Date(project.dueDate).toLocaleDateString()
-                      : 'Not set'}
-                  </p>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Project Tasks */}
-            <div>
-
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Tasks ({tasks.length})
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tasks.map((task) => (
-                  <TaskCard
-                    key={task._id}
-                    task={task}
-                  />
-                ))}
-              </div>
-
-              {tasks.length === 0 && (
-                <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    No tasks in this project
-                  </p>
-                </div>
               )}
 
             </div>
-          </>
-        )}
+          )}
+
+        </div>
       </div>
+
+      {/* Create Project Modal */}
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() =>
+          setIsCreateModalOpen(false)
+        }
+        onProjectCreated={handleProjectCreated}
+        currentUser={user || undefined}
+      />
+
     </AppLayout>
   );
 }
