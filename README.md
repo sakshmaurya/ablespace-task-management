@@ -1,414 +1,890 @@
 # AbleSpace Task Management
 
-## Overview
-A full-stack task management system built with Next.js, NestJS, and MongoDB for assessment submission.
+A full-stack task management system built as part of the **Full Stack Developer (Fresher) Technical Assessment**.
 
-## Assessment Requirements
-This project demonstrates proficiency in:
-- Full-stack development with modern frameworks
-- MongoDB persistence with real data operations
-- Responsive design across all screen sizes
-- Theme management (Light/Dark + accent colors)
-- Profile image/avatar functionality
-- Comprehensive CRUD operations
-- Authentication and authorization
-- Production-ready code quality
+The application demonstrates frontend and backend development using **Next.js, TypeScript, Tailwind CSS, NestJS, and MongoDB**, with a focus on responsive design, reusable components, authentication, CRUD workflows, theme support, API architecture, validation, authorization, and maintainability.
 
-## Features
+---
+
+## Live Demo
+
+> **Frontend:** `https://YOUR-FRONTEND-URL`
+
+> **Backend API:** `https://YOUR-BACKEND-URL`
+
+> Replace the placeholders above with the deployed URLs before submission.
+
+The deployed application should remain accessible for the required assessment review period.
+
+---
+
+# Assessment Overview
+
+This project was developed according to the provided technical assessment, which consists of two parts.
+
+### Part 1 — Task Management System
+
+Implementation of a responsive task management application based on the provided Figma design, including:
+
+* Task and project management
+* Authentication and guest login
+* Theme switching and persistence
+* Reusable UI components
+* Responsive layouts
+* Backend REST APIs
+* MongoDB persistence
+* Validation and authorization
+* Interactive task workflows
+
+### Part 2 — Product Understanding
+
+Exploration and documentation of the **AbleSpace Caseload → Take Data** workflow.
+
+The documentation explains the observed workflow, screenshots, UX/UI observations, and suggested improvements.
+
+See:
+
+`PART_2_DOCUMENTATION.md`
+
+---
+
+# Part 1 — Task Management System
+
+## Core Features
 
 ### Task Management
-- **Kanban Board**: Drag-and-drop task management with 4 columns (To Do, Doing, Completed, On Hold)
-- **List View**: Table-based task view with full functionality
-- **Task CRUD**: Create, read, update, delete tasks with real MongoDB persistence
-- **Task Details**: Comprehensive task detail page with subtasks, comments, and activity tracking
-- **Search**: Real-time search across task titles, descriptions, and labels
-- **Filters**: Filter by status, priority, assignee, and project
-- **Subtasks**: Complete subtask management with completion tracking
-- **Comments**: Threaded comment system for task discussions
-- **Activity**: Activity log tracking all task changes
+
+* Kanban board with task columns
+* List/table view
+* Create, read, update, and delete tasks
+* Task status management
+* Task priority management
+* Task assignment
+* Task search
+* Task filtering
+* Task details
+* Subtasks
+* Comments
+* Activity history
+* Drag-and-drop task management
 
 ### Project Management
-- **Project CRUD**: Create, read, update, delete projects
-- **Project Details**: View project information and related tasks
-- **Lead Assignment**: Assign project leads with user selection
-- **Priority Management**: Project priority levels
 
-### User Management
-- **Authentication**: JWT-based authentication with guest login
-- **Profile Management**: Edit user profile information
-- **Avatar Upload**: Functional profile image upload with base64 storage
-- **Theme Settings**: Light/Dark theme switching with persistence
-- **Accent Colors**: 6 customizable accent colors (Amber, Blue, Pink, Rose, Emerald, Black)
-
-### User Experience
-- **Responsive Design**: Mobile-first design with drawer navigation
-- **Loading States**: Skeleton loaders and loading indicators
-- **Error States**: User-friendly error messages and error boundaries
-- **Empty States**: Guiding empty states for no data scenarios
-- **Transitions**: Subtle animations for better UX
-
-## Tech Stack
-
-### Frontend
-- **Next.js 16.3.0**: React framework with App Router
-- **TypeScript 5**: Type-safe development
-- **Tailwind CSS 4**: Utility-first CSS framework
-- **next-themes**: Theme management
-- **@dnd-kit**: Drag and drop functionality
-- **date-fns**: Date manipulation
-- **lucide-react**: Icon library
-
-### Backend
-- **NestJS 11**: Node.js framework
-- **TypeScript 5**: Type-safe development
-- **Mongoose 9**: MongoDB ODM
-- **MongoDB Atlas**: Cloud NoSQL database
-- **@nestjs/jwt**: JWT authentication
-- **bcrypt**: Password hashing
-- **class-validator**: Input validation
-- **Swagger**: API documentation
-
-## Architecture
-
-### Frontend Structure
-```
-frontend/
-├── app/                    # Next.js App Router
-│   ├── login/             # Authentication page
-│   ├── tasks/             # Task management pages
-│   ├── projects/          # Project management pages
-│   ├── profile/           # User profile with avatar upload
-│   ├── settings/          # Theme and accent color settings
-│   └── layout.tsx         # Root layout with providers
-├── components/
-│   ├── layout/            # Sidebar, Header, AppLayout
-│   ├── tasks/             # TaskBoard, TaskCard, TaskList, CreateTaskModal
-│   ├── projects/          # Project components
-│   ├── ui/                # Button, Input components
-│   └── providers/         # ThemeProvider
-├── hooks/                 # useAuth custom hook
-├── services/              # API service layer
-├── types/                 # TypeScript interfaces
-└── lib/                   # Utilities
-```
-
-### Backend Structure
-```
-backend/src/
-├── auth/                  # Authentication module
-├── users/                 # User management
-├── tasks/                 # Task management
-├── projects/              # Project management
-├── comments/              # Comment system
-├── settings/              # Settings management
-├── common/                # Guards, enums
-├── database/              # MongoDB configuration
-└── seed.ts                # Database seeding
-```
-
-## API Endpoints
+* Create projects
+* View projects
+* Update projects
+* Delete projects
+* Project details
+* Project lead assignment
+* Project priority management
+* Related task management
 
 ### Authentication
-- `POST /auth/guest` - Guest login
-- `POST /auth/login` - User login
-- `GET /auth/me` - Get current user
 
-### Users
-- `GET /users/me` - Get current user profile
-- `PATCH /users/me` - Update user profile
-- `POST /users/me/avatar` - Update user avatar
+* JWT-based authentication
+* Regular user login
+* Guest login
+* Protected API routes
+* Authenticated frontend flows
+* User-specific data access
 
-### Tasks
-- `GET /tasks` - Get all tasks with optional filters
-- `POST /tasks` - Create new task
-- `GET /tasks/:id` - Get task by ID
-- `PATCH /tasks/:id` - Update task
-- `DELETE /tasks/:id` - Delete task
-- `PATCH /tasks/:id/status` - Update task status
-- `PATCH /tasks/:id/priority` - Update task priority
-- `GET /tasks/:taskId/subtasks` - Get task subtasks
-- `POST /tasks/:taskId/subtasks` - Create subtask
-- `PATCH /tasks/subtasks/:id` - Update subtask
-- `DELETE /tasks/subtasks/:id` - Delete subtask
-- `GET /tasks/:taskId/activity` - Get task activity log
+### Profile Management
 
-### Projects
-- `GET /projects` - Get all projects
-- `POST /projects` - Create project
-- `GET /projects/:id` - Get project by ID
-- `PATCH /projects/:id` - Update project
-- `DELETE /projects/:id` - Delete project
+* Edit profile information
+* Avatar upload
+* Avatar preview
+* Avatar removal
+* Persistent avatar data
+* Avatar updates across application components
 
-### Comments
-- `GET /comments/tasks/:taskId` - Get task comments
-- `POST /comments/tasks/:taskId` - Create comment
-- `DELETE /comments/:id` - Delete comment
+### Theme System
 
-### Settings
-- `GET /settings` - Get user settings
-- `PATCH /settings` - Update user settings
+The application supports persistent theme customization.
 
-## MongoDB
+* Light mode
+* Dark mode
+* Persistent theme selection
+* Persistent accent color selection
+* CSS-variable-based theming
+* Theme applied consistently across pages
 
-### Database Collections
-- **users**: User profiles with avatar storage
-- **tasks**: Tasks with status, priority, members, labels
-- **projects**: Projects with leads and due dates
-- **subtasks**: Subtasks with completion tracking
-- **comments**: Comments for task discussions
-- **activities**: Activity log for task changes
+Available accent colors:
 
-### Seed Data
-The application includes comprehensive seed data:
-- 3 users with different roles
-- 3 projects with various priorities
-- 8 tasks across different statuses
-- 5 subtasks
-- 5 comments
-- Full activity tracking
+* Amber
+* Blue
+* Pink
+* Rose
+* Emerald
+* Black
 
-Run seed: `npm run seed` (idempotent - safe to run multiple times)
+### Responsive Design
 
-## Environment Variables
+The application is designed to work across:
 
-### Backend (.env)
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/TaskManager
-JWT_SECRET=your_secure_random_string
-FRONTEND_URL=http://localhost:3000
+* Mobile devices
+* Tablets
+* Laptops
+* Desktop screens
+
+Responsive behavior includes:
+
+* Mobile navigation drawer
+* Overlay navigation
+* Responsive forms
+* Responsive modals
+* Touch-friendly controls
+* Responsive task layouts
+* Responsive tables
+* Adaptive spacing and typography
+
+---
+
+# Design & UI Implementation
+
+The frontend was implemented with the provided assessment design as the primary visual reference.
+
+Attention was given to:
+
+* Layout structure
+* Typography
+* Spacing
+* Component hierarchy
+* Colors
+* Borders
+* Buttons
+* Form controls
+* Cards
+* Navigation
+* Theme behavior
+* Responsive behavior
+* Interactive states
+* Loading states
+* Empty states
+* Error states
+* Micro-interactions
+
+Where implementation details required adaptation for a web-based responsive application, the behavior was adjusted while preserving the overall design intent and user experience.
+
+Any intentional visual or functional deviations should be documented here before final submission.
+
+---
+
+# Reusable Component System
+
+The frontend contains reusable UI components to reduce duplication and maintain consistency.
+
+Examples include:
+
+```text
+frontend/components/ui/
+├── Button.tsx
+├── Input.tsx
+├── Select.tsx
+└── Textarea.tsx
 ```
 
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+Reusable application components include:
+
+```text
+frontend/components/
+├── layout/
+├── projects/
+├── providers/
+├── tasks/
+└── ui/
 ```
 
-## Local Setup
+This structure allows common interaction patterns and styles to be maintained centrally.
 
-### Prerequisites
-- Node.js 18+
-- MongoDB account (Atlas or local)
-- npm
+---
 
-### Backend Setup
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Update .env with your MongoDB URI and JWT secret
-npm run build
-npm run start:dev
+# Frontend Architecture
+
+```text
+frontend/
+├── app/
+│   ├── login/
+│   ├── tasks/
+│   ├── projects/
+│   ├── profile/
+│   ├── settings/
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── layout/
+│   ├── projects/
+│   ├── providers/
+│   ├── tasks/
+│   └── ui/
+│
+├── hooks/
+│   └── useAuth.tsx
+│
+├── services/
+│   ├── authService.ts
+│   ├── commentService.ts
+│   ├── projectService.ts
+│   ├── settingsService.ts
+│   ├── taskService.ts
+│   └── userService.ts
+│
+├── types/
+├── lib/
+└── public/
 ```
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-cp env.example .env.local
-# Update .env.local with your API URL
-npm run dev
+The frontend uses the Next.js App Router and separates pages, reusable components, service/API logic, hooks, and shared types.
+
+---
+
+# Backend Architecture
+
+The backend is implemented using NestJS with a modular architecture.
+
+```text
+backend/src/
+├── auth/
+├── users/
+├── tasks/
+├── projects/
+├── comments/
+├── settings/
+├── database/
+├── common/
+├── app.module.ts
+├── main.ts
+└── seed.ts
 ```
 
-### Database Seeding
+Each major domain is organized into its own NestJS module containing controllers, services, DTOs, and schemas where appropriate.
+
+---
+
+# Technology Stack
+
+## Frontend
+
+* Next.js 16
+* React
+* TypeScript
+* Tailwind CSS
+* next-themes
+* @dnd-kit
+* date-fns
+* lucide-react
+
+## Backend
+
+* NestJS 11
+* TypeScript
+* Mongoose
+* MongoDB
+* JWT
+* bcrypt
+* class-validator
+* Swagger
+
+## Development Tools
+
+* Git
+* GitHub
+* npm
+* ESLint
+
+---
+
+# API Endpoints
+
+## Authentication
+
+```text
+POST /auth/guest
+POST /auth/login
+GET  /auth/me
+```
+
+## Users
+
+```text
+GET   /users/me
+PATCH /users/me
+POST  /users/me/avatar
+```
+
+## Tasks
+
+```text
+GET    /tasks
+POST   /tasks
+GET    /tasks/:id
+PATCH  /tasks/:id
+DELETE /tasks/:id
+
+PATCH /tasks/:id/status
+PATCH /tasks/:id/priority
+
+GET    /tasks/:taskId/subtasks
+POST   /tasks/:taskId/subtasks
+PATCH  /tasks/subtasks/:id
+DELETE /tasks/subtasks/:id
+
+GET /tasks/:taskId/activity
+```
+
+## Projects
+
+```text
+GET    /projects
+POST   /projects
+GET    /projects/:id
+PATCH  /projects/:id
+DELETE /projects/:id
+```
+
+## Comments
+
+```text
+GET    /comments/tasks/:taskId
+POST   /comments/tasks/:taskId
+DELETE /comments/:id
+```
+
+## Settings
+
+```text
+GET   /settings
+PATCH /settings
+```
+
+If Swagger is enabled in the deployed backend, the API documentation is available through the configured Swagger endpoint.
+
+---
+
+# Validation & Authorization
+
+The backend uses DTO-based validation and authenticated API access.
+
+Authorization checks are applied to protected resources so that users cannot freely access or modify another user's data.
+
+Examples include:
+
+* Task access based on the user's relationship to the task
+* Project access based on ownership or project lead assignment
+* Comment deletion restricted to the comment author
+* Protected task operations
+* Protected project operations
+* JWT authentication for protected routes
+
+The application also uses environment variables for sensitive configuration such as database credentials and JWT secrets.
+
+---
+
+# Database
+
+MongoDB is used as the application's primary database.
+
+Main data models include:
+
+```text
+users
+tasks
+projects
+subtasks
+comments
+activities
+settings
+```
+
+## Seed Data
+
+The backend includes seed data for development and assessment demonstration.
+
+The seed data includes:
+
+* Users
+* Projects
+* Tasks
+* Subtasks
+* Comments
+* Activity records
+
+Run:
+
 ```bash
 cd backend
 npm run seed
 ```
 
-## Authentication
+The seed operation is designed to be safe to run repeatedly.
 
-### Guest Login
-Users can access the application without credentials using guest login. Guest users have full functionality for assessment purposes.
+---
 
-### Google OAuth
-Google OAuth is not implemented in this assessment. The application uses guest login and regular user authentication with JWT tokens.
+# Environment Variables
 
-## Security Notes
+## Backend
 
-### Authentication & Authorization
-- **JWT-based Authentication**: All protected routes require valid JWT tokens
-- **User Data Isolation**: Critical security feature implemented
-  - Users can only access tasks where they are creator, member, or reporter
-  - Users can only access projects where they are creator or lead
-  - Users can only delete their own comments
-  - All CRUD operations verify user authorization before execution
-- **API Protection**: All API endpoints require authentication via JwtAuthGuard
-- **MongoDB Security**: Connection uses MongoDB Atlas with secure connection strings
+Create:
 
-### Environment Security
-- **.env files ignored**: All environment files are in .gitignore
-- **No secrets committed**: No passwords, API keys, or secrets in source code
-- **.env.example**: Contains only variable names, no actual values
-- **JWT Secret**: Must be changed in production (uses development secret for assessment)
+```text
+backend/.env
+```
 
-### Security Implementation Details
-- Backend services verify user ownership before data access
-- MongoDB queries scoped to authenticated user's data
-- 404/403 errors returned for unauthorized access (no data leakage)
-- Comment deletion restricted to comment author only
-- Task status changes require authorization
-- Project modifications require authorization
+Example:
 
-### Known Security Limitations
-- Guest login provides full access (acceptable for assessment purposes)
-- No role-based access control beyond basic ownership
-- No rate limiting implemented
-- No input sanitization beyond DTO validation
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/TaskManager
+JWT_SECRET=your_secure_secret
+FRONTEND_URL=http://localhost:3000
+```
 
-## Profile Image Upload
+## Frontend
 
-### Implementation
-- Avatar images are stored as base64 strings in MongoDB
-- File validation: Image files only, max 2MB
-- Preview before saving
-- Remove avatar functionality
-- Avatar persists across sessions
-- Updates in real-time across all components (sidebar, header, task cards)
+Create:
 
-### Usage
-1. Navigate to Profile page
-2. Click on avatar to upload new image
-3. Preview the image
-4. Click "Save Avatar" to persist
-5. Avatar updates immediately in all components
+```text
+frontend/.env.local
+```
 
-## Settings
+Example:
 
-### Theme Switching
-- Light/Dark mode toggle
-- Theme persists across sessions
-- Applied to all components and pages
-- Uses CSS variables for consistent theming
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-### Accent Colors
-- 6 accent color options: Amber, Blue, Pink, Rose, Emerald, Black
-- Color persists across sessions
-- Applied to buttons, links, active states
-- Different colors for light and dark modes
+Never commit real credentials, database URLs, JWT secrets, or other sensitive values.
 
-## Responsive Design
+---
 
-### Breakpoints Tested
-- 320px (mobile)
-- 375px (mobile)
-- 414px (mobile)
-- 768px (tablet)
-- 1024px (desktop)
-- 1280px (desktop)
-- 1440px (desktop)
+# Local Development
 
-### Mobile Features
-- Collapsible sidebar drawer with overlay
-- Touch-friendly navigation
-- Stacked layouts for forms
-- Horizontal scroll for tables
-- Responsive modals
-- Accessible button sizes
+## Prerequisites
 
-## Deployment
+* Node.js 18+
+* npm
+* MongoDB Atlas account or local MongoDB instance
 
-### Production Configuration
-- `.env` files are gitignored
-- `.env.example` provided for setup
-- Frontend API URL configurable
-- CORS configured for production URLs
-- MongoDB connection configurable
+---
 
-### Build Commands
+## Backend Setup
+
 ```bash
-# Frontend
+cd backend
+npm install
+```
+
+Create the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Update the environment variables and start the development server:
+
+```bash
+npm run start:dev
+```
+
+For a production build:
+
+```bash
+npm run build
+npm run start:prod
+```
+
+---
+
+## Frontend Setup
+
+Open another terminal:
+
+```bash
+cd frontend
+npm install
+```
+
+Create the local environment file:
+
+```bash
+cp env.example .env.local
+```
+
+Update the API URL and start the development server:
+
+```bash
+npm run dev
+```
+
+The frontend will normally be available at:
+
+```text
+http://localhost:3000
+```
+
+---
+
+# Authentication
+
+## Guest Login
+
+The application provides a guest login flow so the task management interface can be explored without creating a separate account.
+
+Guest access is intended for assessment/demo purposes.
+
+## Regular Authentication
+
+Regular authentication uses:
+
+* JWT
+* Password hashing
+* Protected backend routes
+* Authenticated frontend requests
+
+---
+
+# Profile & Avatar
+
+The profile section provides:
+
+* Profile editing
+* Avatar upload
+* Avatar preview
+* Avatar removal
+* Persistent avatar data
+
+For the assessment implementation, avatar data is stored as a base64 representation in MongoDB.
+
+For a production application at larger scale, object storage such as S3 or another dedicated media-storage service would be more appropriate.
+
+---
+
+# Theme Settings
+
+Theme preferences are persisted across sessions.
+
+The settings system supports:
+
+```text
+Theme
+├── Light
+└── Dark
+
+Accent
+├── Amber
+├── Blue
+├── Pink
+├── Rose
+├── Emerald
+└── Black
+```
+
+The selected preferences are applied consistently throughout the application.
+
+---
+
+# Responsive Design
+
+The application was tested across multiple viewport sizes, including:
+
+```text
+320px
+375px
+414px
+768px
+1024px
+1280px
+1440px
+```
+
+Responsive behavior includes:
+
+* Collapsible mobile sidebar
+* Navigation overlay
+* Stacked forms
+* Responsive modals
+* Adaptive task layouts
+* Touch-friendly controls
+* Responsive tables
+* Mobile-friendly spacing
+
+---
+
+# Part 2 — AbleSpace Product Understanding
+
+Part 2 of the assessment required exploration of the **AbleSpace → Caseload → Take Data** workflow.
+
+The exploration covered:
+
+```text
+Caseload
+   ↓
+Select Student
+   ↓
+Take Data
+   ↓
+Select IEP Goal
+   ↓
+Capture Data
+   ↓
+Review Data
+   ├── Graph
+   ├── Stats
+   └── Info
+```
+
+The submitted documentation explains:
+
+* Product context
+* Navigation flow
+* Take Data screen
+* Data capture interaction
+* Trial navigation
+* Graph view
+* Stats view
+* Info view
+* UX/UI strengths
+* UX/UI improvement opportunities
+* Functional improvements
+* Accessibility considerations
+* Responsive design considerations
+
+Supporting screenshots were captured during the product exploration.
+
+See:
+
+```text
+PART_2_DOCUMENTATION.md
+```
+
+Screenshots:
+
+```text
+docs/part2/
+├── 01-caseload.png
+├── 02-take-data-initial.png
+├── 03-take-data-capture.png
+├── 04-graph.png
+├── 05-stats.png
+└── 06-info.png
+```
+
+---
+
+# Git & Development Practices
+
+The repository uses multiple small, meaningful commits to document development progress.
+
+Examples include:
+
+```text
+feat: improve project management workflows
+feat: add profile editing and avatar management
+feat: add persistent theme and accent settings
+feat: add reusable form input components
+fix: resolve AppLayout authentication hook order
+feat: polish responsive UI and micro-interactions
+docs: add assessment documentation and setup guide
+docs: complete AbleSpace Take Data analysis
+```
+
+This commit structure makes the development history easier to review and understand.
+
+---
+
+# Security Considerations
+
+The application includes several security-oriented practices:
+
+* JWT authentication
+* Password hashing
+* Protected API routes
+* User-level authorization checks
+* User data isolation
+* Environment-based secrets
+* MongoDB credentials excluded from source control
+* DTO validation
+* Ownership checks for protected resources
+
+### Assessment Limitations
+
+The following are intentionally outside the scope of this assessment implementation:
+
+* Production-grade rate limiting
+* Full role-based access control
+* External object storage for avatars
+* Real-time collaboration
+* Enterprise-scale monitoring
+
+These would be considered for a production deployment depending on application requirements.
+
+---
+
+# Known Limitations
+
+* Guest login intentionally provides simplified access for assessment/demo purposes.
+* Avatar images are stored as base64 data for the assessment implementation.
+* Real-time collaborative updates are not implemented.
+* Production-grade rate limiting is not included.
+* Google OAuth is not required for this assessment and is not implemented.
+* The application uses MongoDB as the selected database implementation.
+
+---
+
+# Testing & Verification
+
+Manual testing was performed across the major application workflows, including:
+
+* Guest login
+* Authentication
+* Task creation
+* Task editing
+* Task deletion
+* Task status changes
+* Task priority changes
+* Drag-and-drop
+* Subtasks
+* Comments
+* Activity history
+* Project management
+* Profile editing
+* Avatar upload
+* Theme switching
+* Accent color switching
+* Responsive navigation
+* Mobile layouts
+* Empty states
+* Loading states
+* Error handling
+
+Before final submission, the deployed frontend and backend should also be tested using production URLs.
+
+---
+
+# Build Commands
+
+## Frontend
+
+```bash
 cd frontend
 npm run build
 npm run start
+```
 
-# Backend
+## Backend
+
+```bash
 cd backend
 npm run build
 npm run start:prod
 ```
 
-## Assessment Notes
+---
 
-### Design Fidelity
-Since Figma access was restricted, the application follows modern UI/UX best practices with:
-- Clean, professional interface
-- Consistent spacing and typography
-- Accessible color contrast
-- Subtle animations
-- Professional color palette
+# Assessment Submission Checklist
 
-### Known Limitations
-- Google OAuth not implemented (uses guest login instead)
-- Avatar storage uses base64 (suitable for assessment, would use S3 in production)
-- No real-time updates (uses manual refresh)
-- Google OAuth configuration would require additional setup
-- No rate limiting implemented
-- No role-based permissions beyond basic ownership
-- No input sanitization beyond DTO validation
+Before submitting the repository, verify:
 
-### Security Implementation
-- **User Data Isolation**: Critical security feature implemented
-  - Users can only access tasks where they are creator, member, or reporter
-  - Users can only access projects where they are creator or lead
-  - Users can only delete their own comments
-  - All CRUD operations verify user authorization before execution
-- **API Protection**: All API endpoints require authentication via JwtAuthGuard
-- **Environment Security**: .env files ignored, no secrets committed
-- **MongoDB Security**: Connection uses MongoDB Atlas with secure connection strings
+* [ ] GitHub repository is public
+* [ ] Frontend is deployed and accessible
+* [ ] Backend is deployed and accessible
+* [ ] Frontend can communicate with the production backend
+* [ ] MongoDB production connection works
+* [ ] Guest login works
+* [ ] Authentication works
+* [ ] Task CRUD works
+* [ ] Project CRUD works
+* [ ] Comments work
+* [ ] Subtasks work
+* [ ] Theme persistence works
+* [ ] Accent color persistence works
+* [ ] Responsive layouts work
+* [ ] README is complete
+* [ ] Part 2 documentation is included
+* [ ] Part 2 screenshots are included
+* [ ] No secrets are committed
+* [ ] Git history contains meaningful commits
+* [ ] Production build succeeds
 
-### Files Modified During Assessment
-Multiple files were enhanced including:
-- Profile page with avatar upload functionality
-- Sidebar with mobile navigation drawer
-- Theme system with accent colors and dark mode
-- Responsive layouts across all pages and components
-- API endpoints for avatar management
-- Database seeding with idempotent check
-- User data isolation security implementation
-- Consistent form components and design system
-- Enhanced save button states with loading indicators
-- Comprehensive security fixes for user authorization
+---
 
-## Development
+# Project Structure
 
-### Code Quality
-- TypeScript strict mode
-- ESLint configuration
-- No console.log statements in production code
-- No unused imports
-- No duplicate code
-- Clean component architecture
+```text
+ablespace-task-manager/
+│
+├── backend/
+│   ├── src/
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── tasks/
+│   │   ├── projects/
+│   │   ├── comments/
+│   │   ├── settings/
+│   │   ├── database/
+│   │   ├── common/
+│   │   ├── main.ts
+│   │   └── seed.ts
+│   ├── .env.example
+│   └── package.json
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── hooks/
+│   ├── services/
+│   ├── types/
+│   ├── lib/
+│   ├── public/
+│   └── package.json
+│
+├── docs/
+│   └── part2/
+│
+├── PART_2_DOCUMENTATION.md
+├── RUN_COMMANDS.md
+├── README.md
+└── .gitignore
+```
 
-### Testing
-Manual testing performed on:
-- All CRUD operations
-- Authentication flows
-- Theme switching
-- Responsive breakpoints
-- Avatar upload
-- Drag and drop
-- All major user flows
+---
 
-## Troubleshooting
+# Conclusion
 
-### MongoDB Connection Issues
-- Verify MongoDB URI is correct
-- Check IP whitelist in MongoDB Atlas
-- Ensure database user has correct permissions
+This project demonstrates a complete full-stack task management workflow with a modern Next.js frontend and modular NestJS backend.
 
-### Theme Not Persisting
-- Check localStorage is enabled
-- Verify settings API is working
-- Check CSS variables are applied
+The implementation focuses on the assessment's primary evaluation areas:
 
-### Avatar Upload Failing
-- Verify file size is under 2MB
-- Ensure file is an image type
-- Check API endpoint is accessible
+* Attention to detail
+* Frontend engineering
+* Backend engineering
+* Component reusability
+* Architecture
+* Code quality
+* Responsiveness
+* Authentication
+* Validation
+* Authorization
+* Product thinking
+* Maintainability
+* Technical communication
 
-## Support
-For issues or questions, refer to the API documentation at `/api` when the backend is running.
+Part 2 additionally demonstrates the ability to explore an existing product, understand a user workflow, identify UX/UI opportunities, and communicate those findings through structured documentation and screenshots.
+
+---
+
+## Assessment
+
+**Assessment:** Full Stack Developer (Fresher) – Technical Assessment
+
+**Part 1:** Task Management System
+
+**Part 2:** AbleSpace Take Data Product Understanding
+
+**Status:** Ready for final verification and deployment
+
+---
 
 ## License
-This project is for assessment purposes.
+
+This project was created for technical assessment purposes.

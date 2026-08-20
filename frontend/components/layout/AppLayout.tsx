@@ -16,6 +16,13 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [loading, isAuthenticated, router]);
+
   // Handle escape key to close sidebar
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -26,7 +33,6 @@ export function AppLayout({ children, title }: AppLayoutProps) {
 
     if (sidebarOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Prevent body scroll when sidebar is open
       document.body.style.overflow = 'hidden';
     }
 
@@ -41,21 +47,17 @@ export function AppLayout({ children, title }: AppLayoutProps) {
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <div className="text-lg text-gray-600 dark:text-gray-400">Loading...</div>
+          <div className="text-lg text-gray-600 dark:text-gray-400">
+            Loading...
+          </div>
         </div>
       </div>
     );
   }
 
-  useEffect(() => {
   if (!isAuthenticated) {
-    router.push('/login');
+    return null;
   }
-}, [isAuthenticated, router]);
-
-if (!isAuthenticated) {
-  return null;
-}
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-950">
@@ -87,7 +89,11 @@ if (!isAuthenticated) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title={title} onMenuClick={() => setSidebarOpen(true)} />
+        <Header
+          title={title}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {children}
         </main>
